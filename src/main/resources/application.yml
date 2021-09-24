@@ -1,0 +1,22 @@
+server:
+  port: 9091
+spring:
+  jpa:
+    database: mysql
+  datasource:
+    url: jdbc:mysql://db:3306/mwpdb
+    username: root
+    password: 1Thewinterstar197
+  application:
+    name: issue-tracker-service
+
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+  instance:
+    hostname: service-registry
+

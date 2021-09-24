@@ -1,0 +1,197 @@
+package com.jaikeex.issuetrackerservice.service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.jaikeex.issuetrackerservice.Dto.DescriptionDto;
+import com.jaikeex.issuetrackerservice.Dto.FilterDto;
+import com.jaikeex.issuetrackerservice.entity.Issue;
+import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
+import com.jaikeex.issuetrackerservice.entity.properties.Project;
+import com.jaikeex.issuetrackerservice.entity.properties.Severity;
+import com.jaikeex.issuetrackerservice.entity.properties.Status;
+import com.jaikeex.issuetrackerservice.repository.IssueRepository;
+import com.jaikeex.issuetrackerservice.utility.exceptions.TitleAlreadyExistsException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(SpringExtension.class)
+class SearchServiceTest {
+
+    public static final String GENERAL_TEST_ISSUE_DESCRIPTION = "this is the general test ISSUE";
+    public static final String UPDATE_TEST_ISSUE_DESCRIPTION = "this is the update test issue";
+    public static final String FILTER_TEST_ISSUE_DESCRIPTION = "this is the filter test issue";
+    public static final String GENERAL_TEST_AUTHOR = "general author";
+    public static final String UPDATE_TEST_AUTHOR = "update author";
+    public static final String FILTER_TEST_AUTHOR = "filter author";
+    public static final String GENERAL_TEST_TITLE = "testTitle";
+    public static final String UPDATE_TEST_TITLE = "update title";
+    public static final String FILTER_TEST_TITLE = "filter title";
+    public static final String NEW_DESCRIPTION = "new description";
+    public static final String NEW_TITLE = "new title";
+    @Mock
+    IssueRepository repository;
+    @Mock
+    IssueService issueService;
+
+    @InjectMocks
+    SearchService service;
+
+    Issue testIssue;
+    Issue updateTestIssue;
+    Issue filterTestIssue;
+    FilterDto testFilterDto;
+    DescriptionDto descriptionDto;
+
+    List<Issue> findAllResults = new LinkedList<>();
+
+    @BeforeEach
+    public void beforeEach() throws JsonProcessingException {
+        initTestIssue();
+        initUpdateTestIssue();
+        initFilterTestIssue();
+        initFilterDto();
+        initDescriptionDto();
+
+        findAllResults.add(testIssue);
+        findAllResults.add(updateTestIssue);
+        findAllResults.add(filterTestIssue);
+
+    }
+
+    private void initDescriptionDto() {
+        descriptionDto = new DescriptionDto();
+        descriptionDto.setDescription(NEW_DESCRIPTION);
+        descriptionDto.setTitle(NEW_TITLE);
+    }
+
+    private void initTestIssue() {
+        testIssue = new Issue();
+        testIssue.setId(1);
+        testIssue.setTitle(GENERAL_TEST_TITLE);
+        testIssue.setDescription(GENERAL_TEST_ISSUE_DESCRIPTION);
+        testIssue.setAuthor(GENERAL_TEST_AUTHOR);
+        testIssue.setType(IssueType.BUG);
+        testIssue.setSeverity(Severity.CRITICAL);
+        testIssue.setStatus(Status.SUBMITTED);
+        testIssue.setProject(Project.MWP);
+    }
+
+    private void initUpdateTestIssue() {
+        updateTestIssue = new Issue();
+        updateTestIssue.setId(1);
+        updateTestIssue.setTitle(UPDATE_TEST_TITLE);
+        updateTestIssue.setDescription(UPDATE_TEST_ISSUE_DESCRIPTION);
+        updateTestIssue.setAuthor(UPDATE_TEST_AUTHOR);
+        updateTestIssue.setType(IssueType.ENHANCEMENT);
+        updateTestIssue.setSeverity(Severity.HIGH);
+        updateTestIssue.setStatus(Status.SOLVED);
+        updateTestIssue.setProject(Project.TRACKER);
+    }
+
+    private void initFilterTestIssue() {
+        filterTestIssue = new Issue();
+        filterTestIssue.setId(1);
+        filterTestIssue.setTitle(FILTER_TEST_TITLE);
+        filterTestIssue.setDescription(FILTER_TEST_ISSUE_DESCRIPTION);
+        filterTestIssue.setAuthor(FILTER_TEST_AUTHOR);
+        filterTestIssue.setType(IssueType.BUG);
+        filterTestIssue.setSeverity(Severity.HIGH);
+        filterTestIssue.setStatus(Status.SOLVED);
+        filterTestIssue.setProject(Project.MWP);
+    }
+
+    private void initFilterDto() {
+        testFilterDto = new FilterDto();
+        testFilterDto.setType(IssueType.BUG);
+        testFilterDto.setSeverity(null);
+        testFilterDto.setStatus(Status.SUBMITTED);
+        testFilterDto.setProject(Project.MWP);
+    }
+
+
+    @Test
+    public void searchIssues_shouldSearchDescriptionsForOccurrences() {
+        List<Issue> findAllResults = getFindAllResults();
+        when(issueService.findAllIssues()).thenReturn(findAllResults);
+        assertEquals(
+                Collections.singletonList(testIssue),
+                service.searchIssues(GENERAL_TEST_ISSUE_DESCRIPTION)
+        );
+    }
+
+    @Test
+    public void searchIssues_shouldSearchAuthorsForOccurrences() {
+        List<Issue> findAllResults = getFindAllResults();
+        when(issueService.findAllIssues()).thenReturn(findAllResults);
+        assertEquals(
+                Collections.singletonList(filterTestIssue),
+                service.searchIssues(FILTER_TEST_AUTHOR)
+        );
+    }
+
+    @Test
+    public void searchIssues_shouldSearchTitlesForOccurrences() {
+        List<Issue> findAllResults = getFindAllResults();
+        when(issueService.findAllIssues()).thenReturn(findAllResults);
+        assertEquals(
+                Collections.singletonList(updateTestIssue),
+                service.searchIssues(UPDATE_TEST_TITLE)
+        );
+    }
+
+    @Test
+    public void searchIssues_shouldIgnoreCase() {
+        List<Issue> findAllResults = getFindAllResults();
+        when(issueService.findAllIssues()).thenReturn(findAllResults);
+        assertEquals(
+                Collections.singletonList(testIssue),
+                service.searchIssues(GENERAL_TEST_ISSUE_DESCRIPTION
+                        .toLowerCase())
+        );
+        assertEquals(
+                Collections.singletonList(testIssue),
+                service.searchIssues(GENERAL_TEST_ISSUE_DESCRIPTION
+                        .toUpperCase())
+        );
+    }
+
+    @Test
+    public void searchIssues_givenNullQuery_shouldReturnAllIssues() {
+        List<Issue> findAllResults = getFindAllResults();
+        when(issueService.findAllIssues()).thenReturn(findAllResults);
+        assertEquals(
+                findAllResults,
+                service.searchIssues(null)
+        );
+    }
+
+    @Test
+    public void searchIssues_givenEmptyQuery_shouldReturnAllIssues() {
+        List<Issue> findAllResults = getFindAllResults();
+        when(issueService.findAllIssues()).thenReturn(findAllResults);
+        assertEquals(
+                findAllResults,
+                service.searchIssues("")
+        );
+    }
+
+    private List<Issue> getFindAllResults() {
+        List<Issue> findAllResults = new LinkedList<>();
+        findAllResults.add(testIssue);
+        findAllResults.add(updateTestIssue);
+        findAllResults.add(filterTestIssue);
+        return findAllResults;
+    }
+
+
+}
