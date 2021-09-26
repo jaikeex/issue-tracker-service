@@ -34,6 +34,7 @@ public class Issue {
     private Status status;
     private Project project;
 
+
 }
 
 

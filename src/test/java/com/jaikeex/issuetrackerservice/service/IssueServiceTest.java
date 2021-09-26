@@ -269,17 +269,14 @@ class IssueServiceTest {
         when(repository.findAllIssuesByType(IssueType.BUG)).thenReturn(findAllBugs);
         when(repository.findAllIssuesByStatus(Status.SUBMITTED)).thenReturn(findAllSubmitted);
         when(repository.findAllIssuesByProject(Project.MWP)).thenReturn(findAllMWP);
-
         assertEquals(Collections.singletonList(testIssue), service.filterIssues(testFilterDto));
     }
-
 
     @Test
     public void deleteIssueById_shouldCallRepository() {
         service.deleteIssueById(1);
         verify(repository, times(1)).deleteById(1);
     }
-
 
     private List<Issue> getFindAllResults() {
         List<Issue> findAllResults = new LinkedList<>();

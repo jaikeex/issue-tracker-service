@@ -1,29 +1,26 @@
 package com.jaikeex.issuetrackerservice.service;
+
 import com.jaikeex.issuetrackerservice.Dto.DescriptionDto;
 import com.jaikeex.issuetrackerservice.Dto.FilterDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
-import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
-import com.jaikeex.issuetrackerservice.entity.properties.Project;
-import com.jaikeex.issuetrackerservice.entity.properties.Severity;
-import com.jaikeex.issuetrackerservice.entity.properties.Status;
+import com.jaikeex.issuetrackerservice.entity.properties.*;
 import com.jaikeex.issuetrackerservice.repository.IssueRepository;
 import com.jaikeex.issuetrackerservice.utility.exceptions.TitleAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
 public class IssueService {
 
-    public static final String ISSUES_BY_TYPE = "issuesByType";
-    public static final String ISSUES_BY_SEVERITY = "issuesBySeverity";
-    public static final String ISSUES_BY_STATUS = "issuesByStatus";
-    public static final String ISSUES_BY_PROJECT = "issuesByProject";
     IssueRepository repository;
 
     @Autowired
@@ -35,12 +32,14 @@ public class IssueService {
         if(canBeCreated(issue)) {
             convertNewLinesInDescriptionToHtml(issue);
             repository.save(issue);
+            log.info("Saved new issue report to the database [id={}] [title={}]", issue.getId(), issue.getTitle());
         }
         return issue;
     }
 
     public void deleteIssueById(Integer id) {
         repository.deleteById(id);
+        log.info("Deleted issue from the database [id={}]", id);
     }
 
     public Issue findIssueById(int id) {
@@ -51,6 +50,7 @@ public class IssueService {
         return repository.findIssueByTitle(title);
     }
 
+    @Cacheable(value = "issue-cache", key = "'AllIssuesCache'")
     public List<Issue> findAllIssues() {
         List<Issue> allIssues = repository.findAll();
         Collections.reverse(allIssues); // in order to display newest reports at the top
@@ -81,6 +81,7 @@ public class IssueService {
     public Issue updateIssueWithNewProperties(Issue updatedIssue) {
         int id = updatedIssue.getId();
         changePropertiesInDatabaseById(updatedIssue, id);
+        log.info("Updated the properties of an issue report in the database [id={}]", id);
         return repository.findIssueById(id);
     }
 
@@ -88,6 +89,7 @@ public class IssueService {
         descriptionDto.setDescription(replaceNewLinesWithHtml(descriptionDto.getDescription()));
         repository.updateIssueWithNewDescription(
                 descriptionDto.getTitle(), descriptionDto.getDescription());
+        log.info("Updated the description of an issue report in the database [title={}]", descriptionDto.getTitle());
         return repository.findIssueByTitle(descriptionDto.getTitle());
     }
 
@@ -111,7 +113,7 @@ public class IssueService {
     private Map<String, List<Issue>> getResultsFilteredByProperty(
              FilterDto filterDto, List<Issue> listOfIssuesToFilter) {
         Map<String, List<Issue>> defaultResults =
-                initializeDefaultResults(listOfIssuesToFilter);
+                initializeDefaultFilterResults(listOfIssuesToFilter);
         return searchDatabaseForResultsByProperty(
                 filterDto, defaultResults);
     }
@@ -120,19 +122,19 @@ public class IssueService {
             FilterDto filterDto, Map<String,
             List<Issue>> issuesGroupedByProperty) {
         if (filterDto.getType() != null) {
-            issuesGroupedByProperty.replace(ISSUES_BY_TYPE,
+            issuesGroupedByProperty.replace(Property.TYPE.getFilterMapKey(),
                     findAllIssuesByType(filterDto.getType()));
         }
         if (filterDto.getSeverity() != null) {
-            issuesGroupedByProperty.replace(ISSUES_BY_SEVERITY,
+            issuesGroupedByProperty.replace(Property.SEVERITY.getFilterMapKey(),
                     findAllIssuesBySeverity(filterDto.getSeverity()));
         }
         if (filterDto.getStatus() != null) {
-            issuesGroupedByProperty.replace(ISSUES_BY_STATUS,
+            issuesGroupedByProperty.replace(Property.STATUS.getFilterMapKey(),
                     findAllIssuesByStatus(filterDto.getStatus()));
         }
         if (filterDto.getProject() != null) {
-            issuesGroupedByProperty.replace(ISSUES_BY_PROJECT,
+            issuesGroupedByProperty.replace(Property.PROJECT.getFilterMapKey(),
                     findAllIssuesByProject(filterDto.getProject()));
         }
         return issuesGroupedByProperty;
@@ -142,28 +144,19 @@ public class IssueService {
             List<Issue> listOfIssuesToFilter,
             Map<String, List<Issue>> resultsFilteredByProperty) {
 
-        listOfIssuesToFilter.retainAll(
-                resultsFilteredByProperty.get(ISSUES_BY_TYPE));
-        listOfIssuesToFilter.retainAll(
-                resultsFilteredByProperty.get(ISSUES_BY_SEVERITY));
-        listOfIssuesToFilter.retainAll(
-                resultsFilteredByProperty.get(ISSUES_BY_STATUS));
-        listOfIssuesToFilter.retainAll(
-                resultsFilteredByProperty.get(ISSUES_BY_PROJECT));
-
+        for (Property property : Property.values()) {
+            listOfIssuesToFilter.retainAll(
+                    resultsFilteredByProperty.get(property.getFilterMapKey()));
+        }
         return listOfIssuesToFilter;
     }
 
-    private Map<String, List<Issue>> initializeDefaultResults(
+    private Map<String, List<Issue>> initializeDefaultFilterResults(
             List<Issue> listOfIssuesToFilter) {
-        Map<String, List<Issue>> defaultFilterResults =
-                new HashMap<>();
-
-        defaultFilterResults.put(ISSUES_BY_TYPE, listOfIssuesToFilter);
-        defaultFilterResults.put(ISSUES_BY_SEVERITY, listOfIssuesToFilter);
-        defaultFilterResults.put(ISSUES_BY_STATUS, listOfIssuesToFilter);
-        defaultFilterResults.put(ISSUES_BY_PROJECT, listOfIssuesToFilter);
-
+        Map<String, List<Issue>> defaultFilterResults = new HashMap<>();
+        for (Property property : Property.values()) {
+            defaultFilterResults.put(property.getFilterMapKey(), listOfIssuesToFilter);
+        }
         return defaultFilterResults;
     }
 
@@ -176,6 +169,7 @@ public class IssueService {
 
     private void convertNewLinesInDescriptionToHtml(Issue issue) {
         issue.setDescription(replaceNewLinesWithHtml(issue.getDescription()));
+        log.debug("Converted new lines in issue description to <br> tags [id={}]", issue.getId());
     }
 
     private String replaceNewLinesWithHtml(String text) {

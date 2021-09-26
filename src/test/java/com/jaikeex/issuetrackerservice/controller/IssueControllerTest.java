@@ -23,6 +23,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.ResultActions;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -45,6 +46,7 @@ class IssueControllerTest {
     private static final String UPDATE_TEST_TITLE = "update title";
     private static final String NEW_DESCRIPTION = "new description";
     private static final String NEW_TITLE = "new title";
+
     @MockBean
     IssueService service;
     @MockBean
@@ -149,13 +151,9 @@ class IssueControllerTest {
 
     @Test
     public void createNewIssue_shouldSendCorsHeaders() throws Exception {
-        mockMvc.perform(post("/issue/create")
+        assertCorsHeadersAreReturned(mockMvc.perform(post("/issue/create")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(testIssueJson))
-                .andExpect(header().string("Access-Control-Allow-Origin", CROSS_ORIGIN_VALUE))
-                .andExpect(header().string("Access-Control-Allow-Methods", CROSS_ORIGIN_ALLOWED_METHODS))
-                .andExpect(header().string("Access-Control-Allow-Headers", CROSS_ORIGIN_ALLOWED_HEADERS))
-                .andExpect(header().string("Access-Control-Max-Age", CROSS_ORIGIN_MAX_AGE));
+                .content(testIssueJson)));
     }
 
     @Test
@@ -172,11 +170,8 @@ class IssueControllerTest {
 
     @Test
     public void deleteIssueById_shouldSendCorsHeaders() throws Exception {
-        mockMvc.perform(delete("/issue/id/1"))
-                .andExpect(header().string("Access-Control-Allow-Origin", CROSS_ORIGIN_VALUE))
-                .andExpect(header().string("Access-Control-Allow-Methods", CROSS_ORIGIN_ALLOWED_METHODS))
-                .andExpect(header().string("Access-Control-Allow-Headers", CROSS_ORIGIN_ALLOWED_HEADERS))
-                .andExpect(header().string("Access-Control-Max-Age", CROSS_ORIGIN_MAX_AGE));
+        ResultActions resultActions = mockMvc.perform(delete("/issue/id/1"));
+        assertCorsHeadersAreReturned(resultActions);
     }
 
 
@@ -202,11 +197,8 @@ class IssueControllerTest {
 
     @Test
     public void findIssueById_shouldSendCorsHeaders() throws Exception {
-        mockMvc.perform(get("/issue/id/1"))
-                .andExpect(header().string("Access-Control-Allow-Origin", CROSS_ORIGIN_VALUE))
-                .andExpect(header().string("Access-Control-Allow-Methods", CROSS_ORIGIN_ALLOWED_METHODS))
-                .andExpect(header().string("Access-Control-Allow-Headers", CROSS_ORIGIN_ALLOWED_HEADERS))
-                .andExpect(header().string("Access-Control-Max-Age", CROSS_ORIGIN_MAX_AGE));
+        ResultActions resultActions = mockMvc.perform(get("/issue/id/1"));
+        assertCorsHeadersAreReturned(resultActions);
     }
 
     @Test
@@ -231,11 +223,8 @@ class IssueControllerTest {
 
     @Test
     public void findIssueByTitle_shouldSendCorsHeaders() throws Exception {
-        mockMvc.perform(get("/issue/title/testTitle"))
-                .andExpect(header().string("Access-Control-Allow-Origin", CROSS_ORIGIN_VALUE))
-                .andExpect(header().string("Access-Control-Allow-Methods", CROSS_ORIGIN_ALLOWED_METHODS))
-                .andExpect(header().string("Access-Control-Allow-Headers", CROSS_ORIGIN_ALLOWED_HEADERS))
-                .andExpect(header().string("Access-Control-Max-Age", CROSS_ORIGIN_MAX_AGE));
+        ResultActions resultActions = mockMvc.perform(get("/issue/title/testTitle"));
+        assertCorsHeadersAreReturned(resultActions);
     }
 
     @Test
@@ -253,11 +242,8 @@ class IssueControllerTest {
 
     @Test
     public void findAllIssues_shouldSendCorsHeaders() throws Exception {
-        mockMvc.perform(get("/issue/all"))
-                .andExpect(header().string("Access-Control-Allow-Origin", CROSS_ORIGIN_VALUE))
-                .andExpect(header().string("Access-Control-Allow-Methods", CROSS_ORIGIN_ALLOWED_METHODS))
-                .andExpect(header().string("Access-Control-Allow-Headers", CROSS_ORIGIN_ALLOWED_HEADERS))
-                .andExpect(header().string("Access-Control-Max-Age", CROSS_ORIGIN_MAX_AGE));
+        ResultActions resultActions = mockMvc.perform(get("/issue/all"));
+        assertCorsHeadersAreReturned(resultActions);
     }
     @Test
     public void findAllByType_shouldCallIssueService() throws Exception {
@@ -267,11 +253,8 @@ class IssueControllerTest {
 
     @Test
     public void findAllByType_shouldSendCorsHeaders() throws Exception {
-        mockMvc.perform(get("/issue/type/BUG"))
-                .andExpect(header().string("Access-Control-Allow-Origin", CROSS_ORIGIN_VALUE))
-                .andExpect(header().string("Access-Control-Allow-Methods", CROSS_ORIGIN_ALLOWED_METHODS))
-                .andExpect(header().string("Access-Control-Allow-Headers", CROSS_ORIGIN_ALLOWED_HEADERS))
-                .andExpect(header().string("Access-Control-Max-Age", CROSS_ORIGIN_MAX_AGE));
+        ResultActions resultActions = mockMvc.perform(get("/issue/type/BUG"));
+        assertCorsHeadersAreReturned(resultActions);
     }
 
     @Test
@@ -282,11 +265,8 @@ class IssueControllerTest {
 
     @Test
     public void findAllBySeverity_shouldSendCorsHeaders() throws Exception {
-        mockMvc.perform(get("/issue/severity/CRITICAL"))
-                .andExpect(header().string("Access-Control-Allow-Origin", CROSS_ORIGIN_VALUE))
-                .andExpect(header().string("Access-Control-Allow-Methods", CROSS_ORIGIN_ALLOWED_METHODS))
-                .andExpect(header().string("Access-Control-Allow-Headers", CROSS_ORIGIN_ALLOWED_HEADERS))
-                .andExpect(header().string("Access-Control-Max-Age", CROSS_ORIGIN_MAX_AGE));
+        ResultActions resultActions = mockMvc.perform(get("/issue/severity/CRITICAL"));
+        assertCorsHeadersAreReturned(resultActions);
     }
 
     @Test
@@ -297,11 +277,8 @@ class IssueControllerTest {
 
     @Test
     public void findAllByStatus_shouldSendCorsHeaders() throws Exception {
-        mockMvc.perform(get("/issue/status/OPEN"))
-                .andExpect(header().string("Access-Control-Allow-Origin", CROSS_ORIGIN_VALUE))
-                .andExpect(header().string("Access-Control-Allow-Methods", CROSS_ORIGIN_ALLOWED_METHODS))
-                .andExpect(header().string("Access-Control-Allow-Headers", CROSS_ORIGIN_ALLOWED_HEADERS))
-                .andExpect(header().string("Access-Control-Max-Age", CROSS_ORIGIN_MAX_AGE));
+        ResultActions resultActions = mockMvc.perform(get("/issue/status/OPEN"));
+        assertCorsHeadersAreReturned(resultActions);
     }
 
     @Test
@@ -313,11 +290,8 @@ class IssueControllerTest {
 
     @Test
     public void findAllByProject_shouldSendCorsHeaders() throws Exception {
-        mockMvc.perform(get("/issue/project/MWP"))
-                .andExpect(header().string("Access-Control-Allow-Origin", CROSS_ORIGIN_VALUE))
-                .andExpect(header().string("Access-Control-Allow-Methods", CROSS_ORIGIN_ALLOWED_METHODS))
-                .andExpect(header().string("Access-Control-Allow-Headers", CROSS_ORIGIN_ALLOWED_HEADERS))
-                .andExpect(header().string("Access-Control-Max-Age", CROSS_ORIGIN_MAX_AGE));
+        ResultActions resultActions = mockMvc.perform(get("/issue/project/MWP"));
+        assertCorsHeadersAreReturned(resultActions);
     }
 
     @Test
@@ -354,13 +328,10 @@ class IssueControllerTest {
 
     @Test
     public void updateIssueWithNewDescription_shouldSendCorsHeaders() throws Exception {
-        mockMvc.perform(post("/issue/update-description")
+        ResultActions resultActions = mockMvc.perform(post("/issue/update-description")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(descriptionDtoJson))
-                .andExpect(header().string("Access-Control-Allow-Origin", CROSS_ORIGIN_VALUE))
-                .andExpect(header().string("Access-Control-Allow-Methods", CROSS_ORIGIN_ALLOWED_METHODS))
-                .andExpect(header().string("Access-Control-Allow-Headers", CROSS_ORIGIN_ALLOWED_HEADERS))
-                .andExpect(header().string("Access-Control-Max-Age", CROSS_ORIGIN_MAX_AGE));
+                .content(descriptionDtoJson));
+        assertCorsHeadersAreReturned(resultActions);
     }
 
     @Test
@@ -373,13 +344,10 @@ class IssueControllerTest {
 
     @Test
     public void filterIssues_shouldSendCorsHeaders() throws Exception {
-        mockMvc.perform(post("/issue/filter")
+        ResultActions resultActions = mockMvc.perform(post("/issue/filter")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(testFilterDtoJson))
-                .andExpect(header().string("Access-Control-Allow-Origin", CROSS_ORIGIN_VALUE))
-                .andExpect(header().string("Access-Control-Allow-Methods", CROSS_ORIGIN_ALLOWED_METHODS))
-                .andExpect(header().string("Access-Control-Allow-Headers", CROSS_ORIGIN_ALLOWED_HEADERS))
-                .andExpect(header().string("Access-Control-Max-Age", CROSS_ORIGIN_MAX_AGE));
+                .content(testFilterDtoJson));
+        assertCorsHeadersAreReturned(resultActions);
     }
 
     @Test
@@ -410,12 +378,16 @@ class IssueControllerTest {
 
     @Test
     public void searchIssues_shouldSendCorsHeaders() throws Exception {
-        mockMvc.perform(get("/issue/search?query=testQuery"))
-                .andExpect(header().string("Access-Control-Allow-Origin", CROSS_ORIGIN_VALUE))
+        ResultActions resultActions = mockMvc.perform(get("/issue/search?query=testQuery"));
+        assertCorsHeadersAreReturned(resultActions);
+
+    }
+
+    private void assertCorsHeadersAreReturned(ResultActions resultActions) throws Exception {
+        resultActions.andExpect(header().string("Access-Control-Allow-Origin", CROSS_ORIGIN_VALUE))
                 .andExpect(header().string("Access-Control-Allow-Methods", CROSS_ORIGIN_ALLOWED_METHODS))
                 .andExpect(header().string("Access-Control-Allow-Headers", CROSS_ORIGIN_ALLOWED_HEADERS))
                 .andExpect(header().string("Access-Control-Max-Age", CROSS_ORIGIN_MAX_AGE));
-
     }
 
 }

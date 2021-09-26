@@ -38,6 +38,7 @@ class SearchServiceTest {
     public static final String FILTER_TEST_TITLE = "filter title";
     public static final String NEW_DESCRIPTION = "new description";
     public static final String NEW_TITLE = "new title";
+
     @Mock
     IssueRepository repository;
     @Mock
