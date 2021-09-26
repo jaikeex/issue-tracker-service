@@ -10,6 +10,12 @@ spring:
   application:
     name: issue-tracker-service
 
+cache:
+  config:
+    eh-cache-name: "issue-cache-eh"
+    eviction-policy: "LRU"
+    max-entries: 1000
+    time-to-live-seconds: 60
 
 eureka:
   client:

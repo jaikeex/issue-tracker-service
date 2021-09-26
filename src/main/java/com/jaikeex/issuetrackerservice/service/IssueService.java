@@ -9,6 +9,7 @@ import com.jaikeex.issuetrackerservice.utility.exceptions.TitleAlreadyExistsExce
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,8 @@ import java.util.Map;
 @Service
 @Slf4j
 public class IssueService {
+
+    private static final String CACHE_NAME = "issue-cache-eh";
 
     IssueRepository repository;
 
@@ -42,33 +45,39 @@ public class IssueService {
         log.info("Deleted issue from the database [id={}]", id);
     }
 
+    @Cacheable(value = CACHE_NAME)
     public Issue findIssueById(int id) {
         return repository.findIssueById(id);
     }
 
+    @Cacheable(value = CACHE_NAME)
     public Issue findIssueByTitle(String title) {
         return repository.findIssueByTitle(title);
     }
 
-    @Cacheable(value = "issue-cache", key = "'AllIssuesCache'")
+    @Cacheable(value = CACHE_NAME, key = "'findAllIssues'")
     public List<Issue> findAllIssues() {
         List<Issue> allIssues = repository.findAll();
         Collections.reverse(allIssues); // in order to display newest reports at the top
         return allIssues;
     }
 
+    @Cacheable(value = CACHE_NAME)
     public List<Issue> findAllIssuesByType(IssueType type) {
         return repository.findAllIssuesByType(type);
     }
 
+    @Cacheable(value = CACHE_NAME)
     public List<Issue> findAllIssuesBySeverity(Severity severity) {
         return repository.findAllIssuesBySeverity(severity);
     }
 
+    @Cacheable(value = CACHE_NAME)
     public List<Issue> findAllIssuesByStatus(Status status) {
         return repository.findAllIssuesByStatus(status);
     }
 
+    @Cacheable(value = CACHE_NAME)
     public List<Issue> findAllIssuesByProject(Project project) {
         return repository.findAllIssuesByProject(project);
     }
