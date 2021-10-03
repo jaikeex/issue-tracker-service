@@ -1,4 +1,4 @@
-package com.jaikeex.issuetrackerservice.Dto;
+package com.jaikeex.issuetrackerservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

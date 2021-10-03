@@ -4,13 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.jaikeex.issuetrackerservice.Dto.DescriptionDto;
-import com.jaikeex.issuetrackerservice.Dto.FilterDto;
+import com.jaikeex.issuetrackerservice.dto.DescriptionDto;
+import com.jaikeex.issuetrackerservice.dto.FilterDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
 import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
 import com.jaikeex.issuetrackerservice.entity.properties.Project;
 import com.jaikeex.issuetrackerservice.entity.properties.Severity;
 import com.jaikeex.issuetrackerservice.entity.properties.Status;
+import com.jaikeex.issuetrackerservice.service.FilterService;
 import com.jaikeex.issuetrackerservice.service.IssueService;
 import com.jaikeex.issuetrackerservice.service.SearchService;
 import com.jaikeex.issuetrackerservice.utility.exceptions.TitleAlreadyExistsException;
@@ -51,6 +52,8 @@ class IssueControllerTest {
     IssueService service;
     @MockBean
     SearchService searchService;
+    @MockBean
+    FilterService filterService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -339,7 +342,7 @@ class IssueControllerTest {
         mockMvc.perform(post("/issue/filter")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testFilterDtoJson));
-        verify(service, times(1)).filterIssues(testFilterDto);
+        verify(filterService, times(1)).filterIssues(testFilterDto);
     }
 
     @Test

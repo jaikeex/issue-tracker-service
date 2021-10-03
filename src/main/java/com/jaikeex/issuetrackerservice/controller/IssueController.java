@@ -1,12 +1,13 @@
 package com.jaikeex.issuetrackerservice.controller;
 
-import com.jaikeex.issuetrackerservice.Dto.DescriptionDto;
-import com.jaikeex.issuetrackerservice.Dto.FilterDto;
+import com.jaikeex.issuetrackerservice.dto.DescriptionDto;
+import com.jaikeex.issuetrackerservice.dto.FilterDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
 import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
 import com.jaikeex.issuetrackerservice.entity.properties.Project;
 import com.jaikeex.issuetrackerservice.entity.properties.Severity;
 import com.jaikeex.issuetrackerservice.entity.properties.Status;
+import com.jaikeex.issuetrackerservice.service.FilterService;
 import com.jaikeex.issuetrackerservice.service.IssueService;
 import com.jaikeex.issuetrackerservice.service.SearchService;
 import com.jaikeex.issuetrackerservice.utility.exceptions.TitleAlreadyExistsException;
@@ -26,11 +27,15 @@ public class IssueController {
 
     IssueService service;
     SearchService searchService;
+    FilterService filterService;
 
     @Autowired
-    public IssueController(IssueService service, SearchService searchService) {
+    public IssueController(IssueService service,
+                           SearchService searchService,
+                           FilterService filterService) {
         this.service = service;
         this.searchService = searchService;
+        this.filterService = filterService;
     }
 
     @GetMapping("/id/{id}")
@@ -77,7 +82,7 @@ public class IssueController {
 
     @PostMapping("/filter")
     public ResponseEntity<Object> filterIssues(@RequestBody FilterDto filterDto) {
-        List<Issue> issues = service.filterIssues(filterDto);
+        List<Issue> issues = filterService.filterIssues(filterDto);
         return getFilterResponseEntity(issues);
     }
 

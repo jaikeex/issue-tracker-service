@@ -1,4 +1,4 @@
-package com.jaikeex.issuetrackerservice.Dto;
+package com.jaikeex.issuetrackerservice.dto;
 
 import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
 import com.jaikeex.issuetrackerservice.entity.properties.Project;

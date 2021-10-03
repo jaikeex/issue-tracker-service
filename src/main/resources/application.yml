@@ -10,6 +10,12 @@ spring:
   application:
     name: issue-tracker-service
 
+logging:
+  level:
+    root: debug
+    org:
+      springframework: debug
+
 cache:
   config:
     eh-cache-name: "issue-cache-eh"

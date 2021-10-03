@@ -1,6 +1,5 @@
 package com.jaikeex.issuetrackerservice.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jaikeex.issuetrackerservice.dto.DescriptionDto;
 import com.jaikeex.issuetrackerservice.dto.FilterDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
@@ -22,29 +21,28 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-class SearchServiceTest {
-
-    public static final String GENERAL_TEST_ISSUE_DESCRIPTION = "this is the general test ISSUE";
-    public static final String UPDATE_TEST_ISSUE_DESCRIPTION = "this is the update test issue";
-    public static final String FILTER_TEST_ISSUE_DESCRIPTION = "this is the filter test issue";
-    public static final String GENERAL_TEST_AUTHOR = "general author";
-    public static final String UPDATE_TEST_AUTHOR = "update author";
-    public static final String FILTER_TEST_AUTHOR = "filter author";
-    public static final String GENERAL_TEST_TITLE = "testTitle";
-    public static final String UPDATE_TEST_TITLE = "update title";
-    public static final String FILTER_TEST_TITLE = "filter title";
-    public static final String NEW_DESCRIPTION = "new description";
-    public static final String NEW_TITLE = "new title";
-
+class FilterServiceTest {
+    private static final String GENERAL_TEST_ISSUE_DESCRIPTION = "this is the general test ISSUE";
+    private static final String UPDATE_TEST_ISSUE_DESCRIPTION = "this is the update test issue";
+    private static final String FILTER_TEST_ISSUE_DESCRIPTION = "this is the filter test issue";
+    private static final String GENERAL_TEST_AUTHOR = "general author";
+    private static final String UPDATE_TEST_AUTHOR = "update author";
+    private static final String FILTER_TEST_AUTHOR = "filter author";
+    private static final String GENERAL_TEST_TITLE = "testTitle";
+    private static final String UPDATE_TEST_TITLE = "update title";
+    private static final String FILTER_TEST_TITLE = "filter title";
+    private static final String NEW_DESCRIPTION = "new description";
+    private static final String NEW_TITLE = "new title";
     @Mock
     IssueRepository repository;
     @Mock
     IssueService issueService;
 
     @InjectMocks
-    SearchService service;
+    FilterService service;
 
     Issue testIssue;
     Issue updateTestIssue;
@@ -55,7 +53,7 @@ class SearchServiceTest {
     List<Issue> findAllResults = new LinkedList<>();
 
     @BeforeEach
-    public void beforeEach() throws JsonProcessingException {
+    public void beforeEach(){
         initTestIssue();
         initUpdateTestIssue();
         initFilterTestIssue();
@@ -67,7 +65,6 @@ class SearchServiceTest {
         findAllResults.add(filterTestIssue);
 
     }
-
     private void initDescriptionDto() {
         descriptionDto = new DescriptionDto();
         descriptionDto.setDescription(NEW_DESCRIPTION);
@@ -118,71 +115,36 @@ class SearchServiceTest {
         testFilterDto.setProject(Project.MWP);
     }
 
-
     @Test
-    public void searchIssues_shouldSearchDescriptionsForOccurrences() {
-        List<Issue> findAllResults = getFindAllResults();
+    public void filterIssues_givenAllOk_shouldCallRepository() {
         when(issueService.findAllIssues()).thenReturn(findAllResults);
-        assertEquals(
-                Collections.singletonList(testIssue),
-                service.searchIssues(GENERAL_TEST_ISSUE_DESCRIPTION)
-        );
+        service.filterIssues(testFilterDto);
+        verify(issueService, times(1)).findAllIssuesByType(IssueType.BUG);
+        verify(issueService, times(0)).findAllIssuesBySeverity(Severity.HIGH);
+        verify(issueService, times(1)).findAllIssuesByStatus(Status.SUBMITTED);
+        verify(issueService, times(1)).findAllIssuesByProject(Project.MWP);
     }
 
     @Test
-    public void searchIssues_shouldSearchAuthorsForOccurrences() {
+    public void filterIssues_givenAllOk_shouldProcessResultsCorrectly() {
         List<Issue> findAllResults = getFindAllResults();
-        when(issueService.findAllIssues()).thenReturn(findAllResults);
-        assertEquals(
-                Collections.singletonList(filterTestIssue),
-                service.searchIssues(FILTER_TEST_AUTHOR)
-        );
-    }
 
-    @Test
-    public void searchIssues_shouldSearchTitlesForOccurrences() {
-        List<Issue> findAllResults = getFindAllResults();
-        when(issueService.findAllIssues()).thenReturn(findAllResults);
-        assertEquals(
-                Collections.singletonList(updateTestIssue),
-                service.searchIssues(UPDATE_TEST_TITLE)
-        );
-    }
+        List<Issue> findAllBugs = new LinkedList<>();
+        findAllBugs.add(testIssue);
+        findAllBugs.add(filterTestIssue);
 
-    @Test
-    public void searchIssues_shouldIgnoreCase() {
-        List<Issue> findAllResults = getFindAllResults();
-        when(issueService.findAllIssues()).thenReturn(findAllResults);
-        assertEquals(
-                Collections.singletonList(testIssue),
-                service.searchIssues(GENERAL_TEST_ISSUE_DESCRIPTION
-                        .toLowerCase())
-        );
-        assertEquals(
-                Collections.singletonList(testIssue),
-                service.searchIssues(GENERAL_TEST_ISSUE_DESCRIPTION
-                        .toUpperCase())
-        );
-    }
+        List<Issue> findAllMWP = new LinkedList<>();
+        findAllMWP.add(testIssue);
+        findAllMWP.add(filterTestIssue);
 
-    @Test
-    public void searchIssues_givenNullQuery_shouldReturnAllIssues() {
-        List<Issue> findAllResults = getFindAllResults();
-        when(issueService.findAllIssues()).thenReturn(findAllResults);
-        assertEquals(
-                findAllResults,
-                service.searchIssues(null)
-        );
-    }
+        List<Issue> findAllSubmitted = new LinkedList<>();
+        findAllSubmitted.add(testIssue);
 
-    @Test
-    public void searchIssues_givenEmptyQuery_shouldReturnAllIssues() {
-        List<Issue> findAllResults = getFindAllResults();
         when(issueService.findAllIssues()).thenReturn(findAllResults);
-        assertEquals(
-                findAllResults,
-                service.searchIssues("")
-        );
+        when(issueService.findAllIssuesByType(IssueType.BUG)).thenReturn(findAllBugs);
+        when(issueService.findAllIssuesByStatus(Status.SUBMITTED)).thenReturn(findAllSubmitted);
+        when(issueService.findAllIssuesByProject(Project.MWP)).thenReturn(findAllMWP);
+        assertEquals(Collections.singletonList(testIssue), service.filterIssues(testFilterDto));
     }
 
     private List<Issue> getFindAllResults() {
@@ -192,6 +154,5 @@ class SearchServiceTest {
         findAllResults.add(filterTestIssue);
         return findAllResults;
     }
-
 
 }
