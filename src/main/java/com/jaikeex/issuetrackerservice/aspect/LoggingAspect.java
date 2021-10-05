@@ -1,6 +1,7 @@
 package com.jaikeex.issuetrackerservice.aspect;
 
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -37,21 +38,21 @@ public class LoggingAspect {
         }
     }
 
-    private void logIllegalArgumentException(ProceedingJoinPoint joinPoint) {
+    private void logIllegalArgumentException(JoinPoint joinPoint) {
         log.error("Illegal argument: {} in {}.{}()",
                 Arrays.toString(joinPoint.getArgs()),
                 joinPoint.getSignature().getDeclaringTypeName(),
                 joinPoint.getSignature().getName());
     }
 
-    private void logWhenEnteringMethodBody(ProceedingJoinPoint joinPoint) {
-        log.debug("Enter: {}.{}()",
+    private void logWhenEnteringMethodBody(JoinPoint joinPoint) {
+        log.info("Enter: {}.{}()",
                 joinPoint.getSignature().getDeclaringTypeName(),
                 joinPoint.getSignature().getName());
     }
 
-    private void logWhenExitingMethodBody(ProceedingJoinPoint joinPoint) {
-        log.debug("Exit: {}.{}()",
+    private void logWhenExitingMethodBody(JoinPoint joinPoint) {
+        log.info("Exit: {}.{}()",
                 joinPoint.getSignature().getDeclaringTypeName(),
                 joinPoint.getSignature().getName());
     }

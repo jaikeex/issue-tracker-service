@@ -95,7 +95,6 @@ public class IssueController {
     @PostMapping("/update-description")  // Is a POST endpoint because html forms can't handle PUT method.
     public ResponseEntity<Object> updateIssueWithNewDescription(
             @RequestBody DescriptionDto descriptionDto) {
-        System.out.println(descriptionDto);
         Issue updatedIssue = service.updateIssueWithNewDescription(descriptionDto);
         return ResponseEntity.ok().body(updatedIssue);
     }

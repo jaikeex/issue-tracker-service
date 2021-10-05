@@ -15,7 +15,4 @@ public class CacheConfigProperties {
     private String evictionPolicy;
     private int maxEntries;
     private int timeToLiveSeconds;
-
-
-
 }
