@@ -354,14 +354,6 @@ class IssueControllerTest {
     }
 
     @Test
-    public void searchIssuesPost_shouldCallIssueService() throws Exception {
-        mockMvc.perform(post("/issue/search")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("testQuery"));
-        verify(searchService, times(1)).searchIssues("testQuery");
-    }
-
-    @Test
     public void searchIssues_shouldCallIssueService() throws Exception {
         mockMvc.perform(get("/issue/search?query=testQuery"));
         verify(searchService, times(1)).searchIssues("testQuery");

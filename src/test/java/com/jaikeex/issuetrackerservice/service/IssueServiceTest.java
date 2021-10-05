@@ -11,6 +11,7 @@ import com.jaikeex.issuetrackerservice.entity.properties.Severity;
 import com.jaikeex.issuetrackerservice.entity.properties.Status;
 import com.jaikeex.issuetrackerservice.repository.IssueRepository;
 import com.jaikeex.issuetrackerservice.utility.exceptions.TitleAlreadyExistsException;
+import com.jaikeex.issuetrackerservice.utility.htmlparser.HtmlParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +41,8 @@ class IssueServiceTest {
     private static final String NEW_TITLE = "new title";
     @Mock
     IssueRepository repository;
+    @Mock
+    HtmlParser parser;
 
     @InjectMocks
     IssueService service;

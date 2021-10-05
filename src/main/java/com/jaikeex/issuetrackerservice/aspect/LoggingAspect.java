@@ -26,22 +26,34 @@ public class LoggingAspect {
 
     @Around("applicationPackagePointcut() && springBeanPointcut()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
+        logWhenEnteringMethodBody(joinPoint);
+        try {
+            Object result = joinPoint.proceed();
+            logWhenExitingMethodBody(joinPoint);
+            return result;
+        } catch (IllegalArgumentException exception) {
+            logIllegalArgumentException(joinPoint);
+            throw exception;
+        }
+    }
+
+    private void logIllegalArgumentException(ProceedingJoinPoint joinPoint) {
+        log.error("Illegal argument: {} in {}.{}()",
+                Arrays.toString(joinPoint.getArgs()),
+                joinPoint.getSignature().getDeclaringTypeName(),
+                joinPoint.getSignature().getName());
+    }
+
+    private void logWhenEnteringMethodBody(ProceedingJoinPoint joinPoint) {
         log.debug("Enter: {}.{}()",
                 joinPoint.getSignature().getDeclaringTypeName(),
                 joinPoint.getSignature().getName());
-        try {
-            Object result = joinPoint.proceed();
-            log.debug("Exit: {}.{}()",
-                    joinPoint.getSignature().getDeclaringTypeName(),
-                    joinPoint.getSignature().getName());
-            return result;
-        } catch (IllegalArgumentException exception) {
-            log.error("Illegal argument: {} in {}.{}()",
-                    Arrays.toString(joinPoint.getArgs()),
-                    joinPoint.getSignature().getDeclaringTypeName(),
-                    joinPoint.getSignature().getName());
-            throw exception;
-        }
+    }
+
+    private void logWhenExitingMethodBody(ProceedingJoinPoint joinPoint) {
+        log.debug("Exit: {}.{}()",
+                joinPoint.getSignature().getDeclaringTypeName(),
+                joinPoint.getSignature().getName());
     }
 
 }

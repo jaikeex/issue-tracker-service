@@ -1,4 +1,4 @@
-package com.jaikeex.issuetrackerservice.filter;
+package com.jaikeex.issuetrackerservice.utility.filter;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;

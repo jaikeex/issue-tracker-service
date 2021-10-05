@@ -38,6 +38,5 @@ public class CacheConfig extends CachingConfigurerSupport {
         config.addCache(generalEhCache);
         return net.sf.ehcache.CacheManager.newInstance(config);
     }
-
 }
 

@@ -53,43 +53,43 @@ public class IssueController {
     @GetMapping("/all")
     public ResponseEntity<Object> findAllIssues() {
         List<Issue> issues = service.findAllIssues();
-        return getFindListOfIssuesResponseEntity(issues);
+        return getListOfIssuesResponseEntity(issues);
     }
 
     @GetMapping("/type/{type}")
     public ResponseEntity<Object> findAllByType(@PathVariable IssueType type) {
         List<Issue> issues = service.findAllIssuesByType(type);
-        return getFindListOfIssuesResponseEntity(issues);
+        return getListOfIssuesResponseEntity(issues);
     }
 
     @GetMapping("/severity/{severity}")
     public ResponseEntity<Object> findAllBySeverity(@PathVariable Severity severity) {
         List<Issue> issues = service.findAllIssuesBySeverity(severity);
-        return getFindListOfIssuesResponseEntity(issues);
+        return getListOfIssuesResponseEntity(issues);
     }
 
     @GetMapping("/status/{status}")
     public ResponseEntity<Object> findAllByStatus(@PathVariable Status status) {
         List<Issue> issues = service.findAllIssuesByStatus(status);
-        return getFindListOfIssuesResponseEntity(issues);
+        return getListOfIssuesResponseEntity(issues);
     }
 
     @GetMapping("/project/{project}")
     public ResponseEntity<Object> findAllByProject(@PathVariable Project project) {
         List<Issue> issues = service.findAllIssuesByProject(project);
-        return getFindListOfIssuesResponseEntity(issues);
+        return getListOfIssuesResponseEntity(issues);
     }
 
     @PostMapping("/filter")
     public ResponseEntity<Object> filterIssues(@RequestBody FilterDto filterDto) {
         List<Issue> issues = filterService.filterIssues(filterDto);
-        return getFilterResponseEntity(issues);
+        return getListOfIssuesResponseEntity(issues);
     }
 
     @PutMapping("/update")
     public ResponseEntity<Object> updateIssueWithNewProperties(@RequestBody Issue issue) {
         Issue updatedIssue = service.updateIssueWithNewProperties(issue);
-        return new ResponseEntity<>(updatedIssue, HttpStatus.OK);
+        return ResponseEntity.ok().body(updatedIssue);
     }
 
     @PostMapping("/update-description")  // Is a POST endpoint because html forms can't handle PUT method.
@@ -97,57 +97,36 @@ public class IssueController {
             @RequestBody DescriptionDto descriptionDto) {
         System.out.println(descriptionDto);
         Issue updatedIssue = service.updateIssueWithNewDescription(descriptionDto);
-        return new ResponseEntity<>(updatedIssue, HttpStatus.OK);
+        return ResponseEntity.ok().body(updatedIssue);
     }
 
     @GetMapping("/search")
     public ResponseEntity<Object> searchIssuesGet(
             @RequestParam(required = false) String query) {
         List<Issue> issues = searchService.searchIssues(query);
-        return getSearchResponseEntity(issues);
+        return getListOfIssuesResponseEntity(issues);
     }
 
     @PostMapping("/create")
     public ResponseEntity<Object> createNewIssue(@RequestBody Issue issue) {
-        try {
-            service.saveIssueToDatabase(issue);
-        } catch (TitleAlreadyExistsException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
-        }
-        return new ResponseEntity<>(issue, HttpStatus.CREATED);
+        service.saveIssueToDatabase(issue);
+        return ResponseEntity.status(HttpStatus.CREATED).body(issue);
     }
 
     @DeleteMapping("/id/{id}")
     public ResponseEntity<Object> deleteIssueById(@PathVariable Integer id) {
         service.deleteIssueById(id);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @Deprecated
-    @PostMapping("/search")
-    public ResponseEntity<Object> searchIssuesPost(
-            @RequestBody(required = false) String query) {
-        List<Issue> issues = searchService.searchIssues(query);
-        return getSearchResponseEntity(issues);
+        return ResponseEntity.ok().build();
     }
 
     private ResponseEntity<Object> getFindIssueResponseEntity(Issue issue) {
-        HttpHeaders headers = getHttpHeaders();
-        return new ResponseEntity<>(issue, headers, getFindIssueHttpStatus(issue));
+        HttpHeaders headers = getJsonHttpHeaders();
+        return ResponseEntity.status(getFindIssueHttpStatus(issue)).headers(headers).body(issue);
     }
 
-    private ResponseEntity<Object> getFindListOfIssuesResponseEntity(List<Issue> issues) {
-        return new ResponseEntity<>(issues, HttpStatus.OK);
-    }
-
-    private ResponseEntity<Object> getFilterResponseEntity(List<Issue> issues) {
-        HttpHeaders headers = getHttpHeaders();
-        return new ResponseEntity<>(issues, headers, HttpStatus.OK);
-    }
-
-    private ResponseEntity<Object> getSearchResponseEntity(List<Issue> issues) {
-        HttpHeaders headers = getHttpHeaders();
-        return new ResponseEntity<>(issues, headers, HttpStatus.OK);
+    private ResponseEntity<Object> getListOfIssuesResponseEntity(List<Issue> issues) {
+        HttpHeaders headers = getJsonHttpHeaders();
+        return ResponseEntity.ok().headers(headers).body(issues);
     }
 
     private HttpStatus getFindIssueHttpStatus(Issue issue) {
@@ -158,13 +137,17 @@ public class IssueController {
         }
     }
 
-    private HttpHeaders getHttpHeaders() {
+    private HttpHeaders getJsonHttpHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
         return headers;
     }
 
+    @ExceptionHandler(TitleAlreadyExistsException.class)
+    public ResponseEntity<Object> TitleAlreadyExists(TitleAlreadyExistsException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
 
+    }
 }
 
 

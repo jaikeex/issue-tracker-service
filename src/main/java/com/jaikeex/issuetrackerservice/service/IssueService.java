@@ -1,23 +1,22 @@
 package com.jaikeex.issuetrackerservice.service;
 
 import com.jaikeex.issuetrackerservice.dto.DescriptionDto;
-import com.jaikeex.issuetrackerservice.dto.FilterDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
-import com.jaikeex.issuetrackerservice.entity.properties.*;
+import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
+import com.jaikeex.issuetrackerservice.entity.properties.Project;
+import com.jaikeex.issuetrackerservice.entity.properties.Severity;
+import com.jaikeex.issuetrackerservice.entity.properties.Status;
 import com.jaikeex.issuetrackerservice.repository.IssueRepository;
 import com.jaikeex.issuetrackerservice.utility.exceptions.TitleAlreadyExistsException;
 import com.jaikeex.issuetrackerservice.utility.htmlparser.HtmlParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Slf4j
@@ -30,7 +29,9 @@ public class IssueService {
     HtmlParser parser;
 
     @Autowired
-    public IssueService(IssueRepository repository, CacheManager cacheManager, HtmlParser parser) {
+    public IssueService(IssueRepository repository,
+                        CacheManager cacheManager,
+                        HtmlParser parser) {
         this.repository = repository;
         this.cacheManager = cacheManager;
         this.parser = parser;
@@ -101,7 +102,8 @@ public class IssueService {
         parser.convertNewLinesInDescriptionToHtml(descriptionDto);
         repository.updateIssueWithNewDescription(
                 descriptionDto.getTitle(), descriptionDto.getDescription());
-        log.info("Updated the description of an issue report in the database [title={}]", descriptionDto.getTitle());
+        log.info("Updated the description of an issue report in the database [title={}]",
+                descriptionDto.getTitle());
         clearAllCacheEntries();
         return repository.findIssueByTitle(descriptionDto.getTitle());
     }
