@@ -17,6 +17,10 @@ import java.util.List;
 @Repository
 public interface IssueRepository extends JpaRepository<Issue, Integer> {
 
+    @Query("SELECT i FROM Issue i ORDER BY i.id DESC ")
+    List<Issue> findAllIssues();
+
+
     @Query("select i from Issue i where i.title = :title")
     Issue findIssueByTitle(
             @Param("title") String title);

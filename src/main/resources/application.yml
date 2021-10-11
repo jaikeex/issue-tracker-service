@@ -4,11 +4,13 @@ spring:
   jpa:
     database: mysql
   datasource:
-    url: jdbc:mysql://db:3306/mwpdb
+    url: jdbc:mysql://issuedb:3306/issuedb
     username: root
     password: 1Thewinterstar197
   application:
     name: issue-tracker-service
+
+
 
 logging:
   level:
@@ -21,7 +23,7 @@ cache:
     eh-cache-name: "issue-cache-eh"
     eviction-policy: "LRU"
     max-entries: 1000
-    time-to-live-seconds: 60
+    time-to-live-seconds: 10
 
 eureka:
   client:

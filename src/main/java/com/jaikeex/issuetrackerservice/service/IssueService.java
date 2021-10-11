@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,14 +25,17 @@ public class IssueService {
 
     private static final String CACHE_NAME = "issue-cache-eh";
 
-    IssueRepository repository;
-    CacheManager cacheManager;
-    HtmlParser parser;
+    private final HistoryService historyService;
+    private final IssueRepository repository;
+    private final CacheManager cacheManager;
+    private final HtmlParser parser;
 
     @Autowired
-    public IssueService(IssueRepository repository,
+    public IssueService(HistoryService historyService,
+                        IssueRepository repository,
                         CacheManager cacheManager,
                         HtmlParser parser) {
+        this.historyService = historyService;
         this.repository = repository;
         this.cacheManager = cacheManager;
         this.parser = parser;
@@ -42,6 +46,7 @@ public class IssueService {
             parser.convertNewLinesInDescriptionToHtml(issue);
             repository.save(issue);
             log.info("Saved new issue report to the database [id={}] [title={}]", issue.getId(), issue.getTitle());
+            historyService.record("created with the following properties: " + issue.propertiesToString(), issue);
         }
         clearAllCacheEntries();
         return issue;
@@ -54,38 +59,43 @@ public class IssueService {
     }
 
     @Cacheable(value = CACHE_NAME, key = "'id' + #id")
+    @Transactional(readOnly = true)
     public Issue findIssueById(int id) {
         return repository.findIssueById(id);
     }
 
     @Cacheable(value = CACHE_NAME, key = "'title' + #title")
+    @Transactional(readOnly = true)
     public Issue findIssueByTitle(String title) {
         return repository.findIssueByTitle(title);
     }
 
     @Cacheable(value = CACHE_NAME, key = "'all'")
+    @Transactional(readOnly = true)
     public List<Issue> findAllIssues() {
-        List<Issue> allIssues = repository.findAll();
-        Collections.reverse(allIssues); // in order to display newest reports at the top
-        return allIssues;
+        return repository.findAllIssues();
     }
 
     @Cacheable(value = CACHE_NAME, key = "'type' + #type")
+    @Transactional(readOnly = true)
     public List<Issue> findAllIssuesByType(IssueType type) {
         return repository.findAllIssuesByType(type);
     }
 
     @Cacheable(value = CACHE_NAME, key = "'severity' + #severity")
+    @Transactional(readOnly = true)
     public List<Issue> findAllIssuesBySeverity(Severity severity) {
         return repository.findAllIssuesBySeverity(severity);
     }
 
     @Cacheable(value = CACHE_NAME, key = "'status' + #status")
+    @Transactional(readOnly = true)
     public List<Issue> findAllIssuesByStatus(Status status) {
         return repository.findAllIssuesByStatus(status);
     }
 
     @Cacheable(value = CACHE_NAME, key = "'project' + #project")
+    @Transactional(readOnly = true)
     public List<Issue> findAllIssuesByProject(Project project) {
         return repository.findAllIssuesByProject(project);
     }
@@ -94,6 +104,7 @@ public class IssueService {
         int id = updatedIssue.getId();
         changePropertiesInDatabaseById(updatedIssue, id);
         log.info("Updated the properties of an issue report in the database [id={}]", id);
+        historyService.record("updated with the following properties: " + updatedIssue.propertiesToString(), updatedIssue);
         clearAllCacheEntries();
         return repository.findIssueById(id);
     }

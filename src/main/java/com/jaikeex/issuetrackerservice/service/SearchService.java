@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,8 +31,9 @@ public class SearchService {
      * @return List of issue objects that contain the query in either their
      *          title, author or description properties
      */
+    @Transactional(readOnly = true)
     public List<Issue> searchIssues (String query) {
-        List<Issue> listOfIssuesToSearch = issueService.findAllIssues();
+        List<Issue> listOfIssuesToSearch = repository.findAllIssues();
         log.debug("Initialized default search results list.");
         return handleEmptyQueryAndFetchResults(query, listOfIssuesToSearch);
     }
@@ -52,6 +54,7 @@ public class SearchService {
                                     .filter(issue -> containsQuery(query, issue))
                                     .collect(Collectors.toList());
         log.debug("Searched database for all reports containing the query string [query={}]", query);
+        System.out.println(searchResults);
         return searchResults;
     }
 

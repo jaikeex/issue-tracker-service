@@ -62,6 +62,9 @@ class SearchServiceTest {
         initFilterDto();
         initDescriptionDto();
 
+        List<Issue> findAllResultsMock = getFindAllResults();
+        when(repository.findAllIssues()).thenReturn(findAllResultsMock);
+
         findAllResults.add(testIssue);
         findAllResults.add(updateTestIssue);
         findAllResults.add(filterTestIssue);
@@ -121,8 +124,6 @@ class SearchServiceTest {
 
     @Test
     public void searchIssues_shouldSearchDescriptionsForOccurrences() {
-        List<Issue> findAllResults = getFindAllResults();
-        when(issueService.findAllIssues()).thenReturn(findAllResults);
         assertEquals(
                 Collections.singletonList(testIssue),
                 service.searchIssues(GENERAL_TEST_ISSUE_DESCRIPTION)
@@ -131,8 +132,6 @@ class SearchServiceTest {
 
     @Test
     public void searchIssues_shouldSearchAuthorsForOccurrences() {
-        List<Issue> findAllResults = getFindAllResults();
-        when(issueService.findAllIssues()).thenReturn(findAllResults);
         assertEquals(
                 Collections.singletonList(filterTestIssue),
                 service.searchIssues(FILTER_TEST_AUTHOR)
@@ -141,8 +140,6 @@ class SearchServiceTest {
 
     @Test
     public void searchIssues_shouldSearchTitlesForOccurrences() {
-        List<Issue> findAllResults = getFindAllResults();
-        when(issueService.findAllIssues()).thenReturn(findAllResults);
         assertEquals(
                 Collections.singletonList(updateTestIssue),
                 service.searchIssues(UPDATE_TEST_TITLE)
@@ -151,8 +148,6 @@ class SearchServiceTest {
 
     @Test
     public void searchIssues_shouldIgnoreCase() {
-        List<Issue> findAllResults = getFindAllResults();
-        when(issueService.findAllIssues()).thenReturn(findAllResults);
         assertEquals(
                 Collections.singletonList(testIssue),
                 service.searchIssues(GENERAL_TEST_ISSUE_DESCRIPTION
@@ -167,8 +162,6 @@ class SearchServiceTest {
 
     @Test
     public void searchIssues_givenNullQuery_shouldReturnAllIssues() {
-        List<Issue> findAllResults = getFindAllResults();
-        when(issueService.findAllIssues()).thenReturn(findAllResults);
         assertEquals(
                 findAllResults,
                 service.searchIssues(null)
@@ -177,8 +170,6 @@ class SearchServiceTest {
 
     @Test
     public void searchIssues_givenEmptyQuery_shouldReturnAllIssues() {
-        List<Issue> findAllResults = getFindAllResults();
-        when(issueService.findAllIssues()).thenReturn(findAllResults);
         assertEquals(
                 findAllResults,
                 service.searchIssues("")
@@ -192,6 +183,4 @@ class SearchServiceTest {
         findAllResults.add(filterTestIssue);
         return findAllResults;
     }
-
-
 }

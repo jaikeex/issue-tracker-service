@@ -7,6 +7,7 @@ import com.jaikeex.issuetrackerservice.repository.IssueRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,8 +30,9 @@ public class FilterService {
      * @param filterDto Dto with values of those properties that should be matched by the filter.
      * @return List of issues matching the filter.
      */
+    @Transactional(readOnly = true)
     public List<Issue> filterIssues(FilterDto filterDto) {
-        List<Issue> listOfIssuesToFilter = issueService.findAllIssues();
+        List<Issue> listOfIssuesToFilter = repository.findAllIssues();
         return getFilteredResults(filterDto, listOfIssuesToFilter);
     }
 
@@ -55,19 +57,19 @@ public class FilterService {
             List<Issue>> issuesGroupedByProperty) {
         if (filterDto.getType() != null) {
             issuesGroupedByProperty.replace(Property.TYPE.getFilterMapKey(),
-                    issueService.findAllIssuesByType(filterDto.getType()));
+                    repository.findAllIssuesByType(filterDto.getType()));
         }
         if (filterDto.getSeverity() != null) {
             issuesGroupedByProperty.replace(Property.SEVERITY.getFilterMapKey(),
-                    issueService.findAllIssuesBySeverity(filterDto.getSeverity()));
+                    repository.findAllIssuesBySeverity(filterDto.getSeverity()));
         }
         if (filterDto.getStatus() != null) {
             issuesGroupedByProperty.replace(Property.STATUS.getFilterMapKey(),
-                    issueService.findAllIssuesByStatus(filterDto.getStatus()));
+                    repository.findAllIssuesByStatus(filterDto.getStatus()));
         }
         if (filterDto.getProject() != null) {
             issuesGroupedByProperty.replace(Property.PROJECT.getFilterMapKey(),
-                    issueService.findAllIssuesByProject(filterDto.getProject()));
+                    repository.findAllIssuesByProject(filterDto.getProject()));
         }
         return issuesGroupedByProperty;
     }

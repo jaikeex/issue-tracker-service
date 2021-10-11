@@ -5,7 +5,7 @@ public enum IssueType {
 
     private final int value;
 
-    private IssueType(int value) {
+    IssueType(int value) {
         this.value = value;
     }
 

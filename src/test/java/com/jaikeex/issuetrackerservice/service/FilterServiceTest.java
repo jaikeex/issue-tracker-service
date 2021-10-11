@@ -119,10 +119,10 @@ class FilterServiceTest {
     public void filterIssues_givenAllOk_shouldCallRepository() {
         when(issueService.findAllIssues()).thenReturn(findAllResults);
         service.filterIssues(testFilterDto);
-        verify(issueService, times(1)).findAllIssuesByType(IssueType.BUG);
-        verify(issueService, times(0)).findAllIssuesBySeverity(Severity.HIGH);
-        verify(issueService, times(1)).findAllIssuesByStatus(Status.SUBMITTED);
-        verify(issueService, times(1)).findAllIssuesByProject(Project.MWP);
+        verify(repository, times(1)).findAllIssuesByType(IssueType.BUG);
+        verify(repository, times(0)).findAllIssuesBySeverity(Severity.HIGH);
+        verify(repository, times(1)).findAllIssuesByStatus(Status.SUBMITTED);
+        verify(repository, times(1)).findAllIssuesByProject(Project.MWP);
     }
 
     @Test
@@ -140,10 +140,10 @@ class FilterServiceTest {
         List<Issue> findAllSubmitted = new LinkedList<>();
         findAllSubmitted.add(testIssue);
 
-        when(issueService.findAllIssues()).thenReturn(findAllResults);
-        when(issueService.findAllIssuesByType(IssueType.BUG)).thenReturn(findAllBugs);
-        when(issueService.findAllIssuesByStatus(Status.SUBMITTED)).thenReturn(findAllSubmitted);
-        when(issueService.findAllIssuesByProject(Project.MWP)).thenReturn(findAllMWP);
+        when(repository.findAllIssues()).thenReturn(findAllResults);
+        when(repository.findAllIssuesByType(IssueType.BUG)).thenReturn(findAllBugs);
+        when(repository.findAllIssuesByStatus(Status.SUBMITTED)).thenReturn(findAllSubmitted);
+        when(repository.findAllIssuesByProject(Project.MWP)).thenReturn(findAllMWP);
         assertEquals(Collections.singletonList(testIssue), service.filterIssues(testFilterDto));
     }
 
