@@ -32,6 +32,7 @@ public class AttachmentService {
         this.issueVolumeFolder = properties.getIssueVolumeFolder();
     }
 
+
     public Issue save(AttachmentBytesDto attachmentBytesDto) throws IOException {
         Issue issue = issueRepository.findIssueByTitle(attachmentBytesDto.getTitle());
         int issueId = issue.getId();
@@ -49,7 +50,8 @@ public class AttachmentService {
                 Paths.get(filePath)).normalize().toAbsolutePath();
         Files.write(destinationPath, attachmentBytesDto.getAttachmentBytes());
 
-        Attachment newAttachment = new Attachment(issueVolumeFolder + filePath, issue);
+        String path = "http://localhost:9091/issue/attachments/";
+        Attachment newAttachment = new Attachment(path + filePath, attachmentBytesDto.getOriginalFilename(), issue);
         attachmentRepository.save(newAttachment);
 
         return issueRepository.findIssueById(issueId);

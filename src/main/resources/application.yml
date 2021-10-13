@@ -13,7 +13,7 @@ spring:
 storage:
   folder:
     issue-attachments-folder: "/issue/attachments/"
-    issue-volume-folder: "//wsl$/docker-desktop-data/version-pack-data/community/docker/volumes/issueattachments/_data/"
+    issue-volume-folder: "/var/lib/docker/volumes/issueattachments/_data/"
 
 logging:
   level:

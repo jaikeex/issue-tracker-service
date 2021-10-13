@@ -14,13 +14,15 @@ import com.jaikeex.issuetrackerservice.service.IssueService;
 import com.jaikeex.issuetrackerservice.service.SearchService;
 import com.jaikeex.issuetrackerservice.utility.exceptions.TitleAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.util.List;
 
 @RestController
@@ -129,6 +131,17 @@ public class IssueController {
     public ResponseEntity<Object> deleteIssueById(@PathVariable Integer id) {
         issueService.deleteIssueById(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/attachments/{id}/{filename}")
+    public void downloadAttachment(
+            @PathVariable String filename,
+            @PathVariable String id,
+            HttpServletResponse response) throws IOException {
+        File file = new File(String.format("/issue/attachments/%s/%s", id, filename));
+        InputStream inputStream = new FileInputStream(file);
+        IOUtils.copy(inputStream, response.getOutputStream());
+        response.flushBuffer();
     }
 
     private ResponseEntity<Object> getFindIssueResponseEntity(Issue issue) {

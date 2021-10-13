@@ -14,9 +14,10 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 public class Attachment {
 
-    public Attachment(String path, Issue issue) {
+    public Attachment(String path, String originalFilename, Issue issue) {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         this.setPath(path);
+        this.setOriginalFilename(originalFilename);
         this.setIssue(issue);
         this.setDate(now);
     }
@@ -25,6 +26,7 @@ public class Attachment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String path;
+    private String originalFilename;
     private Timestamp date;
 
     @ManyToOne
