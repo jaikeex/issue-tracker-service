@@ -1,4 +1,4 @@
-package com.jaikeex.issuetrackerservice.config;
+package com.jaikeex.issuetrackerservice.config.cache;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

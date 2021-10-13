@@ -3,6 +3,7 @@ package com.jaikeex.issuetrackerservice.service;
 import com.jaikeex.issuetrackerservice.entity.HistoryRecord;
 import com.jaikeex.issuetrackerservice.entity.Issue;
 import com.jaikeex.issuetrackerservice.repository.HistoryRepository;
+import com.jaikeex.issuetrackerservice.utility.RecordType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
@@ -22,9 +23,8 @@ public class HistoryService {
         this.repository = repository;
     }
 
-    public void record(String text, Issue issue) {
-
-        HistoryRecord newRecord = new HistoryRecord(text, issue);
+    public void record(RecordType type, Issue issue) {
+        HistoryRecord newRecord = new HistoryRecord(type.getValue(issue), issue);
         saveNewRecord(newRecord);
     }
 

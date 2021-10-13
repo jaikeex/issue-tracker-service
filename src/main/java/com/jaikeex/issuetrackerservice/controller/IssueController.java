@@ -1,5 +1,6 @@
 package com.jaikeex.issuetrackerservice.controller;
 
+import com.jaikeex.issuetrackerservice.dto.AttachmentBytesDto;
 import com.jaikeex.issuetrackerservice.dto.DescriptionDto;
 import com.jaikeex.issuetrackerservice.dto.FilterDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
@@ -7,6 +8,7 @@ import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
 import com.jaikeex.issuetrackerservice.entity.properties.Project;
 import com.jaikeex.issuetrackerservice.entity.properties.Severity;
 import com.jaikeex.issuetrackerservice.entity.properties.Status;
+import com.jaikeex.issuetrackerservice.service.AttachmentService;
 import com.jaikeex.issuetrackerservice.service.FilterService;
 import com.jaikeex.issuetrackerservice.service.IssueService;
 import com.jaikeex.issuetrackerservice.service.SearchService;
@@ -18,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -25,58 +28,61 @@ import java.util.List;
 @Slf4j
 public class IssueController {
 
-    IssueService service;
-    SearchService searchService;
-    FilterService filterService;
+    private final IssueService issueService;
+    private final SearchService searchService;
+    private final FilterService filterService;
+    private final AttachmentService attachmentService;
 
     @Autowired
-    public IssueController(IssueService service,
+    public IssueController(IssueService issueService,
                            SearchService searchService,
-                           FilterService filterService) {
-        this.service = service;
+                           FilterService filterService,
+                           AttachmentService attachmentService) {
+        this.issueService = issueService;
         this.searchService = searchService;
         this.filterService = filterService;
+        this.attachmentService = attachmentService;
     }
 
     @GetMapping("/id/{id}")
     public ResponseEntity<Object> findIssueById(@PathVariable Integer id) {
-        Issue issue = service.findIssueById(id);
+        Issue issue = issueService.findIssueById(id);
         return getFindIssueResponseEntity(issue);
     }
 
     @GetMapping("/title/{title}")
     public ResponseEntity<Object> findIssueByTitle(@PathVariable String title) {
-        Issue issue = service.findIssueByTitle(title);
+        Issue issue = issueService.findIssueByTitle(title);
         return getFindIssueResponseEntity(issue);
     }
 
     @GetMapping("/all")
     public ResponseEntity<Object> findAllIssues() {
-        List<Issue> issues = service.findAllIssues();
+        List<Issue> issues = issueService.findAllIssues();
         return getListOfIssuesResponseEntity(issues);
     }
 
     @GetMapping("/type/{type}")
     public ResponseEntity<Object> findAllByType(@PathVariable IssueType type) {
-        List<Issue> issues = service.findAllIssuesByType(type);
+        List<Issue> issues = issueService.findAllIssuesByType(type);
         return getListOfIssuesResponseEntity(issues);
     }
 
     @GetMapping("/severity/{severity}")
     public ResponseEntity<Object> findAllBySeverity(@PathVariable Severity severity) {
-        List<Issue> issues = service.findAllIssuesBySeverity(severity);
+        List<Issue> issues = issueService.findAllIssuesBySeverity(severity);
         return getListOfIssuesResponseEntity(issues);
     }
 
     @GetMapping("/status/{status}")
     public ResponseEntity<Object> findAllByStatus(@PathVariable Status status) {
-        List<Issue> issues = service.findAllIssuesByStatus(status);
+        List<Issue> issues = issueService.findAllIssuesByStatus(status);
         return getListOfIssuesResponseEntity(issues);
     }
 
     @GetMapping("/project/{project}")
     public ResponseEntity<Object> findAllByProject(@PathVariable Project project) {
-        List<Issue> issues = service.findAllIssuesByProject(project);
+        List<Issue> issues = issueService.findAllIssuesByProject(project);
         return getListOfIssuesResponseEntity(issues);
     }
 
@@ -88,14 +94,21 @@ public class IssueController {
 
     @PutMapping("/update")
     public ResponseEntity<Object> updateIssueWithNewProperties(@RequestBody Issue issue) {
-        Issue updatedIssue = service.updateIssueWithNewProperties(issue);
+        Issue updatedIssue = issueService.updateIssueWithNewProperties(issue);
         return ResponseEntity.ok().body(updatedIssue);
     }
 
     @PostMapping("/update-description")  // Is a POST endpoint because html forms can't handle PUT method.
     public ResponseEntity<Object> updateIssueWithNewDescription(
             @RequestBody DescriptionDto descriptionDto) {
-        Issue updatedIssue = service.updateIssueWithNewDescription(descriptionDto);
+        Issue updatedIssue = issueService.updateIssueWithNewDescription(descriptionDto);
+        return ResponseEntity.ok().body(updatedIssue);
+    }
+
+    @PostMapping("/upload-attachment")
+    public ResponseEntity<Object> uploadNewAttachment(
+            @RequestBody AttachmentBytesDto attachmentBytesDto) throws IOException {
+        Issue updatedIssue = attachmentService.save(attachmentBytesDto);
         return ResponseEntity.ok().body(updatedIssue);
     }
 
@@ -108,13 +121,13 @@ public class IssueController {
 
     @PostMapping("/create")
     public ResponseEntity<Object> createNewIssue(@RequestBody Issue issue) {
-        service.saveIssueToDatabase(issue);
+        issueService.saveIssueToDatabase(issue);
         return ResponseEntity.status(HttpStatus.CREATED).body(issue);
     }
 
     @DeleteMapping("/id/{id}")
     public ResponseEntity<Object> deleteIssueById(@PathVariable Integer id) {
-        service.deleteIssueById(id);
+        issueService.deleteIssueById(id);
         return ResponseEntity.ok().build();
     }
 
@@ -144,8 +157,14 @@ public class IssueController {
 
     @ExceptionHandler(TitleAlreadyExistsException.class)
     public ResponseEntity<Object> TitleAlreadyExists(TitleAlreadyExistsException exception) {
+        log.warn(exception.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+    }
 
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<Object> attachmentServiceException(IOException exception) {
+        log.warn(exception.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception.getMessage());
     }
 }
 

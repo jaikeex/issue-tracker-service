@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.jaikeex.issuetrackerservice.dto.AttachmentBytesDto;
 import com.jaikeex.issuetrackerservice.dto.DescriptionDto;
 import com.jaikeex.issuetrackerservice.dto.FilterDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
@@ -11,6 +12,7 @@ import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
 import com.jaikeex.issuetrackerservice.entity.properties.Project;
 import com.jaikeex.issuetrackerservice.entity.properties.Severity;
 import com.jaikeex.issuetrackerservice.entity.properties.Status;
+import com.jaikeex.issuetrackerservice.service.AttachmentService;
 import com.jaikeex.issuetrackerservice.service.FilterService;
 import com.jaikeex.issuetrackerservice.service.IssueService;
 import com.jaikeex.issuetrackerservice.service.SearchService;
@@ -21,10 +23,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
+
+import java.io.IOException;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -47,6 +52,11 @@ class IssueControllerTest {
     private static final String UPDATE_TEST_TITLE = "update title";
     private static final String NEW_DESCRIPTION = "new description";
     private static final String NEW_TITLE = "new title";
+    private static final String TEST_FILE_NAME = "testFileName";
+    private static final byte[] TEST_FILE_CONTENT = {1, 2, 3};
+    private static final String MULTIPART_FORM_DATA_TYPE = "multipart/form-data";
+    private static final MockMultipartFile TEST_ATTACHMENT_FILE =
+            new MockMultipartFile(TEST_FILE_NAME, TEST_FILE_NAME, MULTIPART_FORM_DATA_TYPE, TEST_FILE_CONTENT);
 
     @MockBean
     IssueService service;
@@ -54,6 +64,8 @@ class IssueControllerTest {
     SearchService searchService;
     @MockBean
     FilterService filterService;
+    @MockBean
+    AttachmentService attachmentService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -68,13 +80,16 @@ class IssueControllerTest {
     String testFilterDtoJson;
     DescriptionDto descriptionDto;
     String descriptionDtoJson;
+    AttachmentBytesDto testAttachmentBytesDto;
+    String attachmentDtoJson;
 
     @BeforeEach
-    public void beforeEach() throws JsonProcessingException {
+    public void beforeEach() throws IOException {
         initTestIssue();
         initUpdateTestIssue();
         initFilterDto();
         initDescriptionDto();
+        initAttachmentDto();
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
@@ -83,6 +98,7 @@ class IssueControllerTest {
         updateTestIssueJson = writer.writeValueAsString(updateTestIssue);
         testFilterDtoJson = writer.writeValueAsString(testFilterDto);
         descriptionDtoJson = writer.writeValueAsString(descriptionDto);
+        attachmentDtoJson = writer.writeValueAsString(testAttachmentBytesDto);
     }
 
 
@@ -125,6 +141,11 @@ class IssueControllerTest {
         descriptionDto.setTitle(NEW_TITLE);
     }
 
+    private void initAttachmentDto() throws IOException {
+        testAttachmentBytesDto = new AttachmentBytesDto();
+        testAttachmentBytesDto.setAttachmentBytes(TEST_ATTACHMENT_FILE.getBytes());
+        testAttachmentBytesDto.setTitle(GENERAL_TEST_TITLE);
+    }
 
     @Test
     public void createNewIssue_shouldCallIssueService() throws Exception {
@@ -176,7 +197,6 @@ class IssueControllerTest {
         ResultActions resultActions = mockMvc.perform(delete("/issue/id/1"));
         assertCorsHeadersAreReturned(resultActions);
     }
-
 
     @Test
     public void findIssueById_shouldCallIssueService() throws Exception {
@@ -248,6 +268,7 @@ class IssueControllerTest {
         ResultActions resultActions = mockMvc.perform(get("/issue/all"));
         assertCorsHeadersAreReturned(resultActions);
     }
+
     @Test
     public void findAllByType_shouldCallIssueService() throws Exception {
         mockMvc.perform(get("/issue/type/BUG"));
@@ -289,7 +310,6 @@ class IssueControllerTest {
         mockMvc.perform(get("/issue/project/MWP"));
         verify(service, times(1)).findAllIssuesByProject(Project.MWP);
     }
-
 
     @Test
     public void findAllByProject_shouldSendCorsHeaders() throws Exception {
@@ -334,6 +354,30 @@ class IssueControllerTest {
         ResultActions resultActions = mockMvc.perform(post("/issue/update-description")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(descriptionDtoJson));
+        assertCorsHeadersAreReturned(resultActions);
+    }
+
+    @Test
+    public void uploadNewAttachment_shouldCallIssueService() throws Exception {
+        mockMvc.perform(post("/issue/upload-attachment")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(attachmentDtoJson));
+        verify(attachmentService, times(1)).save(testAttachmentBytesDto);
+    }
+
+    @Test
+    public void uploadNewAttachment_givenAllOk_shouldCallReturnOk() throws Exception {
+        mockMvc.perform(post("/issue/upload-attachment")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(attachmentDtoJson))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void uploadNewAttachment_shouldSendCorsHeaders() throws Exception {
+        ResultActions resultActions = mockMvc.perform(post("/issue/upload-attachment")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(attachmentDtoJson));
         assertCorsHeadersAreReturned(resultActions);
     }
 

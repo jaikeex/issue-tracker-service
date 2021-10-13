@@ -7,6 +7,7 @@ import com.jaikeex.issuetrackerservice.entity.properties.Project;
 import com.jaikeex.issuetrackerservice.entity.properties.Severity;
 import com.jaikeex.issuetrackerservice.entity.properties.Status;
 import com.jaikeex.issuetrackerservice.repository.IssueRepository;
+import com.jaikeex.issuetrackerservice.utility.RecordType;
 import com.jaikeex.issuetrackerservice.utility.exceptions.TitleAlreadyExistsException;
 import com.jaikeex.issuetrackerservice.utility.htmlparser.HtmlParser;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +47,7 @@ public class IssueService {
             parser.convertNewLinesInDescriptionToHtml(issue);
             repository.save(issue);
             log.info("Saved new issue report to the database [id={}] [title={}]", issue.getId(), issue.getTitle());
-            historyService.record("created with the following properties: " + issue.propertiesToString(), issue);
+            historyService.record(RecordType.CREATE, issue);
         }
         clearAllCacheEntries();
         return issue;
@@ -104,7 +105,7 @@ public class IssueService {
         int id = updatedIssue.getId();
         changePropertiesInDatabaseById(updatedIssue, id);
         log.info("Updated the properties of an issue report in the database [id={}]", id);
-        historyService.record("updated with the following properties: " + updatedIssue.propertiesToString(), updatedIssue);
+        historyService.record(RecordType.UPDATE_PROPERTIES, updatedIssue);
         clearAllCacheEntries();
         return repository.findIssueById(id);
     }
@@ -113,8 +114,10 @@ public class IssueService {
         parser.convertNewLinesInDescriptionToHtml(descriptionDto);
         repository.updateIssueWithNewDescription(
                 descriptionDto.getTitle(), descriptionDto.getDescription());
+        Issue updatedIssue = repository.findIssueByTitle(descriptionDto.getTitle());
         log.info("Updated the description of an issue report in the database [title={}]",
                 descriptionDto.getTitle());
+        historyService.record(RecordType.UPDATE_DESCRIPTION, updatedIssue);
         clearAllCacheEntries();
         return repository.findIssueByTitle(descriptionDto.getTitle());
     }

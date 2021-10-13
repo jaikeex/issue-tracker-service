@@ -32,6 +32,9 @@ public class Issue {
     @OneToMany(mappedBy = "issue", fetch = FetchType.LAZY)
     private List<HistoryRecord> historyRecords;
 
+    @OneToMany(mappedBy = "issue", fetch = FetchType.LAZY)
+    private List<Attachment> attachments;
+
     private Timestamp date;
     private String author;
 
@@ -41,8 +44,7 @@ public class Issue {
     private Project project;
 
     public String propertiesToString() {
-        return type.toString() + " " + severity.toString() + " "  + status.toString() + " "  + project.toString();
-
+        return type.toString() + " " + severity.toString() + " " + project.toString() + "; status: " + status.toString();
     }
 
 }

@@ -54,7 +54,6 @@ public class SearchService {
                                     .filter(issue -> containsQuery(query, issue))
                                     .collect(Collectors.toList());
         log.debug("Searched database for all reports containing the query string [query={}]", query);
-        System.out.println(searchResults);
         return searchResults;
     }
 

@@ -1,4 +1,4 @@
-package com.jaikeex.issuetrackerservice.config;
+package com.jaikeex.issuetrackerservice.config.cache;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;

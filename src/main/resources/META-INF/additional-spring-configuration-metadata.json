@@ -19,5 +19,15 @@
       "name": "cache.config.time-to-live-seconds",
       "type": "java.lang.String",
       "description": "Time to live given in seconds."
+    },
+    {
+      "name": "storage.folder.issue-attachments-folder",
+      "type": "java.lang.String",
+      "description": "Description for storage.folder.issue-attachments-folder."
+    },
+    {
+      "name": "storage.folder.issue-volume-folder",
+      "type": "java.lang.String",
+      "description": "Description for storage.folder.issue-volume-folder."
     }
   ] }
