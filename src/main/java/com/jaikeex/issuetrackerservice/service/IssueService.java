@@ -1,6 +1,8 @@
 package com.jaikeex.issuetrackerservice.service;
 
+import com.jaikeex.issuetrackerservice.dto.AttachmentFileDto;
 import com.jaikeex.issuetrackerservice.dto.DescriptionDto;
+import com.jaikeex.issuetrackerservice.dto.IssueDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
 import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
 import com.jaikeex.issuetrackerservice.entity.properties.Project;
@@ -17,7 +19,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -27,27 +30,34 @@ public class IssueService {
     private static final String CACHE_NAME = "issue-cache-eh";
 
     private final HistoryService historyService;
+    private final AttachmentService attachmentService;
     private final IssueRepository repository;
     private final CacheManager cacheManager;
     private final HtmlParser parser;
 
     @Autowired
     public IssueService(HistoryService historyService,
+                        AttachmentService attachmentService,
                         IssueRepository repository,
                         CacheManager cacheManager,
                         HtmlParser parser) {
         this.historyService = historyService;
+        this.attachmentService = attachmentService;
         this.repository = repository;
         this.cacheManager = cacheManager;
         this.parser = parser;
     }
 
-    public Issue saveIssueToDatabase(Issue issue) {
+    public Issue saveIssueToDatabase(IssueDto issueDto) throws IOException {
+        Issue issue = new Issue(issueDto);
         if(canBeCreated(issue)) {
             parser.convertNewLinesInDescriptionToHtml(issue);
             repository.save(issue);
-            log.info("Saved new issue report to the database [id={}] [title={}]", issue.getId(), issue.getTitle());
             historyService.record(RecordType.CREATE, issue);
+            if (issueDto.getAttachmentFileDto().getBytes().length != 0) {
+                attachmentService.saveAttachment(issueDto.getAttachmentFileDto());
+            }
+            log.info("Saved new issue report to the database [id={}] [title={}]", issue.getId(), issue.getTitle());
         }
         clearAllCacheEntries();
         return issue;
@@ -122,6 +132,28 @@ public class IssueService {
         return repository.findIssueByTitle(descriptionDto.getTitle());
     }
 
+    public Issue saveAttachment(AttachmentFileDto attachmentFileDto) throws IOException {
+        clearAllCacheEntries();
+        return attachmentService.saveAttachment(attachmentFileDto);
+    }
+
+    public void downloadAttachment(String filename, String id, HttpServletResponse response) throws IOException {
+        attachmentService.downloadAttachment(filename, id, response);
+    }
+
+    public void deleteAttachment(int id) throws IOException {
+        clearAllCacheEntries();
+        attachmentService.deleteAttachment(id);
+    }
+
+    private void clearAllCacheEntries() {
+        try {
+            cacheManager.getCache(CACHE_NAME).clear();
+        } catch (NullPointerException exception) {
+            log.warn(exception.getMessage());
+        }
+    }
+
     private boolean canBeCreated(Issue issue) {
         Issue dbResponse = repository.findIssueByTitle(issue.getTitle());
         if (dbResponse != null) {
@@ -138,11 +170,6 @@ public class IssueService {
         repository.updateIssueWithNewProject(id, updatedIssue.getProject());
     }
 
-    private void clearAllCacheEntries() {
-        try {
-            cacheManager.getCache(CACHE_NAME).clear();
-        } catch (NullPointerException exception) {
-            log.warn(exception.getMessage());
-        }
-    }
+
+
 }

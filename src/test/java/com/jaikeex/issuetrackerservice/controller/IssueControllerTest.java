@@ -1,12 +1,12 @@
 package com.jaikeex.issuetrackerservice.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.jaikeex.issuetrackerservice.dto.AttachmentBytesDto;
+import com.jaikeex.issuetrackerservice.dto.AttachmentFileDto;
 import com.jaikeex.issuetrackerservice.dto.DescriptionDto;
 import com.jaikeex.issuetrackerservice.dto.FilterDto;
+import com.jaikeex.issuetrackerservice.dto.IssueDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
 import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
 import com.jaikeex.issuetrackerservice.entity.properties.Project;
@@ -80,8 +80,10 @@ class IssueControllerTest {
     String testFilterDtoJson;
     DescriptionDto descriptionDto;
     String descriptionDtoJson;
-    AttachmentBytesDto testAttachmentBytesDto;
+    AttachmentFileDto testAttachmentFileDto;
     String attachmentDtoJson;
+    IssueDto testIssueDto;
+    String issueDtoJson;
 
     @BeforeEach
     public void beforeEach() throws IOException {
@@ -90,6 +92,7 @@ class IssueControllerTest {
         initFilterDto();
         initDescriptionDto();
         initAttachmentDto();
+        initTestIssueDto();
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
@@ -98,7 +101,8 @@ class IssueControllerTest {
         updateTestIssueJson = writer.writeValueAsString(updateTestIssue);
         testFilterDtoJson = writer.writeValueAsString(testFilterDto);
         descriptionDtoJson = writer.writeValueAsString(descriptionDto);
-        attachmentDtoJson = writer.writeValueAsString(testAttachmentBytesDto);
+        attachmentDtoJson = writer.writeValueAsString(testAttachmentFileDto);
+        issueDtoJson = writer.writeValueAsString(testIssueDto);
     }
 
 
@@ -135,6 +139,16 @@ class IssueControllerTest {
         testFilterDto.setProject(Project.MWP);
     }
 
+    private void initTestIssueDto() {
+        testIssueDto = new IssueDto();
+        testIssueDto.setTitle(GENERAL_TEST_TITLE);
+        testIssueDto.setDescription(GENERAL_TEST_ISSUE_DESCRIPTION);
+        testIssueDto.setAuthor(GENERAL_TEST_AUTHOR);
+        testIssueDto.setType(IssueType.BUG);
+        testIssueDto.setSeverity(Severity.CRITICAL);
+        testIssueDto.setProject(Project.MWP);
+    }
+
     private void initDescriptionDto() {
         descriptionDto = new DescriptionDto();
         descriptionDto.setDescription(NEW_DESCRIPTION);
@@ -142,9 +156,9 @@ class IssueControllerTest {
     }
 
     private void initAttachmentDto() throws IOException {
-        testAttachmentBytesDto = new AttachmentBytesDto();
-        testAttachmentBytesDto.setAttachmentBytes(TEST_ATTACHMENT_FILE.getBytes());
-        testAttachmentBytesDto.setTitle(GENERAL_TEST_TITLE);
+        testAttachmentFileDto = new AttachmentFileDto();
+        testAttachmentFileDto.setBytes(TEST_ATTACHMENT_FILE.getBytes());
+        testAttachmentFileDto.setIssueTitle(GENERAL_TEST_TITLE);
     }
 
     @Test
@@ -152,7 +166,7 @@ class IssueControllerTest {
         mockMvc.perform(post("/issue/create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testIssueJson));
-        verify(service, times(1)).saveIssueToDatabase(testIssue);
+        verify(service, times(1)).saveIssueToDatabase(testIssueDto);
     }
 
     @Test
@@ -165,7 +179,7 @@ class IssueControllerTest {
 
     @Test
     public void createNewIssue_shouldCatchTitleAlreadyExistsExceptionAndReturnConflict() throws Exception {
-        when(service.saveIssueToDatabase(testIssue))
+        when(service.saveIssueToDatabase(testIssueDto))
                 .thenThrow(TitleAlreadyExistsException.class);
         mockMvc.perform(post("/issue/create")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -362,7 +376,7 @@ class IssueControllerTest {
         mockMvc.perform(post("/issue/upload-attachment")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(attachmentDtoJson));
-        verify(attachmentService, times(1)).save(testAttachmentBytesDto);
+        verify(service, times(1)).saveAttachment(testAttachmentFileDto);
     }
 
     @Test

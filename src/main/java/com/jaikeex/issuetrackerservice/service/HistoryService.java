@@ -1,13 +1,12 @@
 package com.jaikeex.issuetrackerservice.service;
 
+import com.jaikeex.issuetrackerservice.entity.Attachment;
 import com.jaikeex.issuetrackerservice.entity.HistoryRecord;
 import com.jaikeex.issuetrackerservice.entity.Issue;
 import com.jaikeex.issuetrackerservice.repository.HistoryRepository;
 import com.jaikeex.issuetrackerservice.utility.RecordType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +23,12 @@ public class HistoryService {
     }
 
     public void record(RecordType type, Issue issue) {
-        HistoryRecord newRecord = new HistoryRecord(type.getValue(issue), issue);
+        HistoryRecord newRecord = new HistoryRecord(type.getTextForDbRecord(issue), issue);
+        saveNewRecord(newRecord);
+    }
+
+    public void record(RecordType type, Issue issue, Attachment attachment) {
+        HistoryRecord newRecord = new HistoryRecord(type.getTextForDbRecord(attachment), issue);
         saveNewRecord(newRecord);
     }
 
@@ -32,8 +36,8 @@ public class HistoryService {
         repository.save(record);
     }
 
-    public List<HistoryRecord> findByIssueId(int issueId) {
-        return repository.findByIssueId(issueId);
+    public List<HistoryRecord> findRecordsByIssueId(int issueId) {
+        return repository.findRecordsByIssueId(issueId);
     }
 
 }

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="logbackRollingFilename" source="logging.logback.rollingpolicy.file-name-pattern"/>
+    <springProperty scope="context" name="encoderPattern" source="logging.logback.encoder.pattern"/>
+    <springProperty scope="context" name="appenderName" source="logging.logback.appender.name"/>
+    <springProperty scope="context" name="rootLevel" source="logging.level.root"/>
+    <springProperty scope="context" name="maxHistory" source="logging.logback.rollingpolicy.max-history"/>
+
+    <appender name="${appenderName}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logbackRollingFilename}</fileNamePattern>
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${encoderPattern}</pattern>
+        </encoder>
+    </appender>
+
+    <root level="${rootLevel}">
+        <appender-ref ref="${appenderName}"/>
+    </root>
+</configuration>
+

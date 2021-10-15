@@ -2,18 +2,9 @@ package com.jaikeex.issuetrackerservice.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.jaikeex.issuetrackerservice.dto.DescriptionDto;
-import com.jaikeex.issuetrackerservice.dto.FilterDto;
 import com.jaikeex.issuetrackerservice.entity.HistoryRecord;
 import com.jaikeex.issuetrackerservice.entity.Issue;
-import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
-import com.jaikeex.issuetrackerservice.entity.properties.Project;
-import com.jaikeex.issuetrackerservice.entity.properties.Severity;
-import com.jaikeex.issuetrackerservice.entity.properties.Status;
 import com.jaikeex.issuetrackerservice.repository.HistoryRepository;
-import com.jaikeex.issuetrackerservice.repository.IssueRepository;
-import com.jaikeex.issuetrackerservice.utility.exceptions.TitleAlreadyExistsException;
-import com.jaikeex.issuetrackerservice.utility.htmlparser.HtmlParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,10 +52,10 @@ class HistoryServiceTest {
     public void findAllRecordsByIssueId_givenValidIssueId_shouldReturnCorrectResults() {
         List<HistoryRecord> expectedResults = new LinkedList<>();
         expectedResults.add(testRecord);
-        when(repository.findByIssueId(TEST_ISSUE_ID))
+        when(repository.findRecordsByIssueId(TEST_ISSUE_ID))
                 .thenReturn(Collections.singletonList(testRecord));
-        assertEquals(expectedResults, service.findByIssueId(TEST_ISSUE_ID));
+        assertEquals(expectedResults, service.findRecordsByIssueId(TEST_ISSUE_ID));
         verify(repository, times(1))
-                .findByIssueId(TEST_ISSUE_ID);
+                .findRecordsByIssueId(TEST_ISSUE_ID);
     }
 }

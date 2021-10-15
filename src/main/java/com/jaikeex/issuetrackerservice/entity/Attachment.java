@@ -1,6 +1,7 @@
 package com.jaikeex.issuetrackerservice.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.jaikeex.issuetrackerservice.dto.AttachmentFileDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,10 +15,10 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 public class Attachment {
 
-    public Attachment(String path, String originalFilename, Issue issue) {
+    public Attachment(String path, AttachmentFileDto attachmentFileDto, Issue issue) {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         this.setPath(path);
-        this.setOriginalFilename(originalFilename);
+        this.setOriginalFilename(attachmentFileDto.getOriginalFilename());
         this.setIssue(issue);
         this.setDate(now);
     }

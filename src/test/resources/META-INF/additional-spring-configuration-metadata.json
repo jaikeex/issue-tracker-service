@@ -23,21 +23,16 @@
     {
       "name": "storage.folder.issue-attachments-folder",
       "type": "java.lang.String",
-      "description": "Path to the issue attachments volume mountpoint."
+      "description": "Description for storage.folder.issue-attachments-folder."
+    },
+    {
+      "name": "storage.folder.issue-volume-folder",
+      "type": "java.lang.String",
+      "description": "Description for storage.folder.issue-volume-folder."
     },
     {
       "name": "storage.folder.issue-download-endpoint",
       "type": "java.lang.String",
-      "description": "Http endpoint where the download requests are served."
-    },
-    {
-      "name": "logging.logback.encoder.pattern",
-      "type": "java.lang.String",
-      "description": "Logback encoder pattern."
-    },
-    {
-      "name": "logging.logback.appender.name",
-      "type": "java.lang.String",
-      "description": "Logback rolling file appender name."
+      "description": "Description for storage.folder.issue-download-endpoint."
     }
   ] }

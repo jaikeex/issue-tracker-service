@@ -12,6 +12,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class StorageProperties {
 
     private String issueAttachmentsFolder;
-    private String issueVolumeFolder;
+    private String attachmentDownloadEndpoint;
     
 }

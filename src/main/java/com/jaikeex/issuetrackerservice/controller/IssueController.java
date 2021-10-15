@@ -1,8 +1,9 @@
 package com.jaikeex.issuetrackerservice.controller;
 
-import com.jaikeex.issuetrackerservice.dto.AttachmentBytesDto;
+import com.jaikeex.issuetrackerservice.dto.AttachmentFileDto;
 import com.jaikeex.issuetrackerservice.dto.DescriptionDto;
 import com.jaikeex.issuetrackerservice.dto.FilterDto;
+import com.jaikeex.issuetrackerservice.dto.IssueDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
 import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
 import com.jaikeex.issuetrackerservice.entity.properties.Project;
@@ -14,7 +15,6 @@ import com.jaikeex.issuetrackerservice.service.IssueService;
 import com.jaikeex.issuetrackerservice.service.SearchService;
 import com.jaikeex.issuetrackerservice.utility.exceptions.TitleAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,7 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -109,8 +109,8 @@ public class IssueController {
 
     @PostMapping("/upload-attachment")
     public ResponseEntity<Object> uploadNewAttachment(
-            @RequestBody AttachmentBytesDto attachmentBytesDto) throws IOException {
-        Issue updatedIssue = attachmentService.save(attachmentBytesDto);
+            @RequestBody AttachmentFileDto attachmentFileDto) throws IOException {
+        Issue updatedIssue = issueService.saveAttachment(attachmentFileDto);
         return ResponseEntity.ok().body(updatedIssue);
     }
 
@@ -122,8 +122,8 @@ public class IssueController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Object> createNewIssue(@RequestBody Issue issue) {
-        issueService.saveIssueToDatabase(issue);
+    public ResponseEntity<Object> createNewIssue(@RequestBody IssueDto issueDto) throws IOException {
+        Issue issue = issueService.saveIssueToDatabase(issueDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(issue);
     }
 
@@ -138,10 +138,12 @@ public class IssueController {
             @PathVariable String filename,
             @PathVariable String id,
             HttpServletResponse response) throws IOException {
-        File file = new File(String.format("/issue/attachments/%s/%s", id, filename));
-        InputStream inputStream = new FileInputStream(file);
-        IOUtils.copy(inputStream, response.getOutputStream());
-        response.flushBuffer();
+        issueService.downloadAttachment(filename, id, response);
+    }
+
+    @DeleteMapping("/attachments/{id}")
+    public void deleteAttachment(@PathVariable int id) throws IOException {
+        issueService.deleteAttachment(id);
     }
 
     private ResponseEntity<Object> getFindIssueResponseEntity(Issue issue) {

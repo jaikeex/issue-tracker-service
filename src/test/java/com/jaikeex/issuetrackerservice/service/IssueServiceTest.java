@@ -2,8 +2,10 @@ package com.jaikeex.issuetrackerservice.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.jaikeex.issuetrackerservice.dto.AttachmentFileDto;
 import com.jaikeex.issuetrackerservice.dto.DescriptionDto;
 import com.jaikeex.issuetrackerservice.dto.FilterDto;
+import com.jaikeex.issuetrackerservice.dto.IssueDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
 import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
 import com.jaikeex.issuetrackerservice.entity.properties.Project;
@@ -19,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,10 +42,14 @@ class IssueServiceTest {
     private static final String FILTER_TEST_TITLE = "filter title";
     private static final String NEW_DESCRIPTION = "new description";
     private static final String NEW_TITLE = "new title";
+    private static final byte[] TEST_BYTES = {1, 2, 3};
+    private static final String TEST_ORIGINAL_FILENAME = "testOriginalFilename";
     @Mock
     IssueRepository repository;
     @Mock
     HistoryService historyService;
+    @Mock
+    AttachmentService attachmentService;
     @Mock
     HtmlParser parser;
 
@@ -54,6 +61,8 @@ class IssueServiceTest {
     Issue filterTestIssue;
     FilterDto testFilterDto;
     DescriptionDto descriptionDto;
+    IssueDto testIssueDto;
+    AttachmentFileDto testAttachmentFileDto;
 
     List<Issue> findAllResults = new LinkedList<>();
 
@@ -64,6 +73,8 @@ class IssueServiceTest {
         initFilterTestIssue();
         initFilterDto();
         initDescriptionDto();
+        initAttachmentFileDto();
+        initTestIssueDto();
 
         findAllResults.add(testIssue);
         findAllResults.add(updateTestIssue);
@@ -76,6 +87,13 @@ class IssueServiceTest {
         descriptionDto.setTitle(NEW_TITLE);
     }
 
+    private void initAttachmentFileDto() {
+        testAttachmentFileDto = new AttachmentFileDto();
+        testAttachmentFileDto.setIssueTitle(GENERAL_TEST_TITLE);
+        testAttachmentFileDto.setBytes(TEST_BYTES);
+        testAttachmentFileDto.setOriginalFilename(TEST_ORIGINAL_FILENAME);
+    }
+
     private void initTestIssue() {
         testIssue = new Issue();
         testIssue.setId(1);
@@ -86,6 +104,17 @@ class IssueServiceTest {
         testIssue.setSeverity(Severity.CRITICAL);
         testIssue.setStatus(Status.SUBMITTED);
         testIssue.setProject(Project.MWP);
+    }
+
+    private void initTestIssueDto() {
+        testIssueDto = new IssueDto();
+        testIssueDto.setTitle(GENERAL_TEST_TITLE);
+        testIssueDto.setDescription(GENERAL_TEST_ISSUE_DESCRIPTION);
+        testIssueDto.setAuthor(GENERAL_TEST_AUTHOR);
+        testIssueDto.setType(IssueType.BUG);
+        testIssueDto.setSeverity(Severity.CRITICAL);
+        testIssueDto.setProject(Project.MWP);
+        testIssueDto.setAttachmentFileDto(testAttachmentFileDto);
     }
 
     private void initUpdateTestIssue() {
@@ -122,17 +151,18 @@ class IssueServiceTest {
 
 
     @Test
-    public void saveIssueToDatabase_givenAllOk_shouldCallRepository() {
-        when(repository.findIssueByTitle(testIssue.getTitle())).thenReturn(null);
-        service.saveIssueToDatabase(testIssue);
-        verify(repository, times(1)).save(testIssue);
+    public void saveIssueToDatabase_givenAllOk_shouldCallRepository() throws IOException {
+        Issue issue = new Issue(testIssueDto);
+        when(repository.findIssueByTitle(issue.getTitle())).thenReturn(null);
+        service.saveIssueToDatabase(testIssueDto);
+        verify(repository, times(1)).save(issue);
     }
 
     @Test
     public void saveIssueToDatabase_givenTitleAlreadyExists_shouldThrowException() {
         when(repository.findIssueByTitle(testIssue.getTitle())).thenReturn(new Issue());
         assertThrows(TitleAlreadyExistsException.class,
-                () -> service.saveIssueToDatabase(testIssue));
+                () -> service.saveIssueToDatabase(testIssueDto));
     }
 
     @Test

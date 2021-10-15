@@ -16,3 +16,8 @@ cache:
     eviction-policy: "LRU"
     max-entries: 1000
     time-to-live-seconds: 60
+
+storage:
+  folder:
+    issue-attachments-folder: "/issue/attachments/"
+    attachment-download-endpoint: "http://localhost:9091/issue/attachments/"

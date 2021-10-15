@@ -46,15 +46,20 @@ public class LoggingAspect {
     }
 
     private void logWhenEnteringMethodBody(JoinPoint joinPoint) {
-        log.info("Enter: {}.{}()",
+        log.debug("Enter [method={}.{}({})]",
                 joinPoint.getSignature().getDeclaringTypeName(),
-                joinPoint.getSignature().getName());
+                joinPoint.getSignature().getName(),
+                getArgsAsString(joinPoint));
     }
 
     private void logWhenExitingMethodBody(JoinPoint joinPoint) {
-        log.info("Exit: {}.{}()",
+        log.debug("Exit [method={}.{}({})]",
                 joinPoint.getSignature().getDeclaringTypeName(),
-                joinPoint.getSignature().getName());
+                joinPoint.getSignature().getName(),
+                getArgsAsString(joinPoint));
     }
 
+    private String getArgsAsString(JoinPoint joinPoint) {
+        return Arrays.toString(joinPoint.getArgs());
+    }
 }
