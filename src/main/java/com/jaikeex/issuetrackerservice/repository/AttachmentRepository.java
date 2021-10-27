@@ -1,0 +1,14 @@
+package com.jaikeex.issuetrackerservice.repository;
+
+import com.jaikeex.issuetrackerservice.entity.Attachment;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface AttachmentRepository extends JpaRepository<Attachment, Integer> {
+    @Query("select a from Attachment a where a.id = :id")
+    Attachment findAttachmentById(
+            @Param("id") Integer id);
+}

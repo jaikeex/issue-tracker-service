@@ -1,0 +1,35 @@
+spring:
+  cloud:
+    discovery:
+      enabled: false
+  jpa:
+    database: mysql
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:db;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password: sa
+
+cache:
+  config:
+    eh-cache-name: "issue-cache-eh"
+    eviction-policy: "LRU"
+    max-entries: 1000
+    time-to-live-seconds: 60
+
+storage:
+  folder:
+    issue-attachments-folder: "/issue/attachments/"
+    attachment-download-endpoint: "http://localhost:9091/issue/attachments/"
+
+logging:
+  logback:
+    appender:
+      name: "fileAppender"
+    encoder:
+      pattern: "%d [%thread] %-5level  %logger{35} - %msg%n"
+    rollingpolicy:
+      file-name-pattern: "/logs/issue-tracker-service/logFile.%d{yyyy-MM-dd}.log"
+      max-history: 3
+  level:
+    root: info

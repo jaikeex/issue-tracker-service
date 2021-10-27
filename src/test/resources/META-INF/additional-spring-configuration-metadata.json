@@ -1,0 +1,38 @@
+{
+  "properties": [
+    {
+      "name": "cache.config.eh-cache-name",
+      "type": "java.lang.String",
+      "description": "Name of the EHCache used by to service."
+    },
+    {
+      "name": "cache.config.eviction-policy",
+      "type": "java.lang.String",
+      "description": "Eviction policy of the cache."
+    },
+    {
+      "name": "cache.config.max-entries",
+      "type": "java.lang.String",
+      "description": "Max entries of the cache."
+    },
+    {
+      "name": "cache.config.time-to-live-seconds",
+      "type": "java.lang.String",
+      "description": "Time to live given in seconds."
+    },
+    {
+      "name": "storage.folder.issue-attachments-folder",
+      "type": "java.lang.String",
+      "description": "Description for storage.folder.issue-attachments-folder."
+    },
+    {
+      "name": "storage.folder.issue-volume-folder",
+      "type": "java.lang.String",
+      "description": "Description for storage.folder.issue-volume-folder."
+    },
+    {
+      "name": "storage.folder.issue-download-endpoint",
+      "type": "java.lang.String",
+      "description": "Description for storage.folder.issue-download-endpoint."
+    }
+  ] }
