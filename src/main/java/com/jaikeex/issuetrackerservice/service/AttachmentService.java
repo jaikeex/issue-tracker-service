@@ -43,6 +43,15 @@ public class AttachmentService {
         this.attachmentDownloadEndpoint = storageProperties.getAttachmentDownloadEndpoint();
     }
 
+    /**Saves the attachment file on disk and creates its record in database.
+     * @param attachmentFileDto Data transfer object which contains the file
+     *                          itself and other data needed to process
+     *                          and save the attachment.
+     * @return Issue object which the attachment belongs to
+     *         (loaded after the upload completes).
+     * @throws IOException when there is a problem with either saving the file
+     *                     or creating the issue-specific folder.
+     */
     public Issue saveAttachment(AttachmentFileDto attachmentFileDto) throws IOException {
         Issue issue = issueRepository.findIssueByTitle(attachmentFileDto.getIssueTitle());
         String filePath = issue.getId() + "/" + attachmentFileDto.getOriginalFilename();
@@ -54,30 +63,41 @@ public class AttachmentService {
         return issueRepository.findIssueById(issue.getId());
     }
 
+    /**Deletes both the attachment file and its database record.
+     * @param id Database id of the attachment that is about to be deleted.
+     * @throws IOException when there is a problem with deleting the
+     *                     attachment file from disk.
+     */
     public void deleteAttachment(int id) throws IOException {
         Attachment attachmentToDelete = attachmentRepository.findAttachmentById(id);
-        Issue issue = attachmentToDelete.getIssue();
-        String filePath = issue.getId() + "/" + attachmentToDelete.getOriginalFilename();
-        deleteAttachmentFileFromDisk(filePath);
-        deleteAttachmentReferenceFromDatabase(id, attachmentToDelete, issue);
+        Issue parentIssue = attachmentToDelete.getIssue();
+        String attachmentFilePath = parentIssue.getId() + "/" + attachmentToDelete.getOriginalFilename();
+        deleteAttachmentFileFromDisk(attachmentFilePath);
+        deleteAttachmentReferenceFromDatabase(id, attachmentToDelete, parentIssue);
         log.info("Successfully deleted an attachment file [filename={}]", attachmentToDelete.getOriginalFilename());
     }
 
-    public void downloadAttachment(String filename, String id, HttpServletResponse response) throws IOException {
-        InputStream inputStream = getAttachmentFileInputStream(filename, id);
+    /**Copies the file into the provided http response.
+     * @param filename name of the file.
+     * @param issueId database id of the issue which the file belongs to.
+     * @param response used to send the requested file to user.
+     * @throws IOException when there is a problem with downloading the file.
+     */
+    public void downloadAttachment(String filename, String issueId, HttpServletResponse response) throws IOException {
+        InputStream inputStream = getAttachmentFileInputStream(filename, issueId);
         IOUtils.copy(inputStream, response.getOutputStream());
         response.flushBuffer();
         log.info("Processed an attachment file for download [filename={}]", filename);
     }
 
-    private InputStream getAttachmentFileInputStream(String filename, String id) throws FileNotFoundException {
-        File file = new File(String.format("/issue/attachments/%s/%s", id, filename));
+    private InputStream getAttachmentFileInputStream(String filename, String issueId) throws FileNotFoundException {
+        File file = new File(String.format("/issue/attachments/%s/%s", issueId, filename));
         return new FileInputStream(file);
     }
 
-    private void deleteAttachmentReferenceFromDatabase(int id, Attachment attachmentToDelete, Issue issue) {
+    private void deleteAttachmentReferenceFromDatabase(int issueId, Attachment attachmentToDelete, Issue issue) {
         historyService.record(RecordType.DELETE_ATTACHMENT, issue, attachmentToDelete);
-        attachmentRepository.deleteById(id);
+        attachmentRepository.deleteById(issueId);
     }
 
     private void deleteAttachmentFileFromDisk(String filePath) throws IOException {

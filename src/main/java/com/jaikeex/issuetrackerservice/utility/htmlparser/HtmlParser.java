@@ -10,12 +10,14 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class HtmlParser {
     public void convertNewLinesInDescriptionToHtml(Issue issue) {
-        issue.setDescription(replaceNewLinesWithHtml(issue.getDescription()));
-        log.debug("Converted new lines in issue description to <br> tags [id={}]", issue.getId());
+        String convertedText = replaceNewLinesWithHtml(issue.getDescription());
+        issue.setDescription(convertedText);
+        log.debug("Converted new lines in issue description to <br> tags [title={}]", issue.getTitle());
     }
 
     public void convertNewLinesInDescriptionToHtml(DescriptionDto descriptionDto) {
-        descriptionDto.setDescription(replaceNewLinesWithHtml(descriptionDto.getDescription()));
+        String convertedText = replaceNewLinesWithHtml(descriptionDto.getDescription());
+        descriptionDto.setDescription(convertedText);
         log.debug("Converted new lines in descriptionDto description to <br> tags [title={}]", descriptionDto.getTitle());
     }
 

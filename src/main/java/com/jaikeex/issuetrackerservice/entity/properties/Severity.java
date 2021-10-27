@@ -1,5 +1,8 @@
 package com.jaikeex.issuetrackerservice.entity.properties;
 
+/**
+ * The importance of the issue. Ranges from low to critical.
+ */
 public enum Severity {
     CRITICAL(0), HIGH(1), MEDIUM(2), LOW(3);
 

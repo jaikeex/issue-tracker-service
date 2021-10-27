@@ -22,11 +22,20 @@ public class HistoryService {
         this.repository = repository;
     }
 
+    /**Creates an entry in database with information about a change to the issue report.
+     * @param type Type of the change.
+     * @param issue Changed issue.
+     */
     public void record(RecordType type, Issue issue) {
         HistoryRecord newRecord = new HistoryRecord(type.getTextForDbRecord(issue), issue);
         saveNewRecord(newRecord);
     }
 
+    /**Creates an entry in database with information about a change to the issue report.
+     * @param type Type of the change.
+     * @param issue Changed issue.
+     * @param attachment Changed (uploaded/deleted) attachment.
+     */
     public void record(RecordType type, Issue issue, Attachment attachment) {
         HistoryRecord newRecord = new HistoryRecord(type.getTextForDbRecord(attachment), issue);
         saveNewRecord(newRecord);

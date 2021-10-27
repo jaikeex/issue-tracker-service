@@ -122,7 +122,8 @@ public class IssueController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Object> createNewIssue(@RequestBody IssueDto issueDto) throws IOException {
+    public ResponseEntity<Object> createNewIssue(@RequestBody IssueDto issueDto)
+            throws IOException {
         Issue issue = issueService.saveIssueToDatabase(issueDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(issue);
     }

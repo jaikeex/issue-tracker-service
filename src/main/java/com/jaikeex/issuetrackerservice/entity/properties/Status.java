@@ -1,5 +1,9 @@
 package com.jaikeex.issuetrackerservice.entity.properties;
 
+/**
+ * Solution Status of the issue. New reports are automatically assigned
+ * a SUBMITTED status, which can be changed to OPEN or SOLVED.
+ */
 public enum Status {
     SUBMITTED(0), OPEN(1), SOLVED(2);
 

@@ -21,3 +21,15 @@ storage:
   folder:
     issue-attachments-folder: "/issue/attachments/"
     attachment-download-endpoint: "http://localhost:9091/issue/attachments/"
+
+logging:
+  logback:
+    appender:
+      name: "fileAppender"
+    encoder:
+      pattern: "%d [%thread] %-5level  %logger{35} - %msg%n"
+    rollingpolicy:
+      file-name-pattern: "/logs/issue-tracker-service/logFile.%d{yyyy-MM-dd}.log"
+      max-history: 3
+  level:
+    root: info

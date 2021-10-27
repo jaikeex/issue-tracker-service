@@ -132,6 +132,9 @@ public class IssueService {
         return repository.findIssueByTitle(descriptionDto.getTitle());
     }
 
+    //TODO: These attachment related methods only redirect the call along
+    //      with a cache wipe. Find a way to drop them and manage the cache
+    //      without them.
     public Issue saveAttachment(AttachmentFileDto attachmentFileDto) throws IOException {
         clearAllCacheEntries();
         return attachmentService.saveAttachment(attachmentFileDto);
