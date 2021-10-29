@@ -6,7 +6,7 @@ spring:
   datasource:
     url: jdbc:mysql://issuedb:3306/issuedb
     username: root
-    password: 1Thewinterstar197
+    password: redacted
   application:
     name: issue-tracker-service
 
