@@ -17,13 +17,11 @@ import java.util.Map;
 @Slf4j
 public class FilterService {
 
-    IssueRepository repository;
-    IssueService issueService;
+    private final IssueRepository repository;
 
     @Autowired
-    public FilterService(IssueRepository repository, IssueService issueService) {
+    public FilterService(IssueRepository repository) {
         this.repository = repository;
-        this.issueService = issueService;
     }
 
     /** Returns those issue reports from database that match a given set of properties.

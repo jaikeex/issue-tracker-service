@@ -166,7 +166,7 @@ class IssueControllerTest {
         mockMvc.perform(post("/issue/create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testIssueJson));
-        verify(service, times(1)).saveIssueToDatabase(testIssueDto);
+        verify(service, times(1)).saveNewIssue(testIssueDto);
     }
 
     @Test
@@ -179,7 +179,7 @@ class IssueControllerTest {
 
     @Test
     public void createNewIssue_shouldCatchTitleAlreadyExistsExceptionAndReturnConflict() throws Exception {
-        when(service.saveIssueToDatabase(testIssueDto))
+        when(service.saveNewIssue(testIssueDto))
                 .thenThrow(TitleAlreadyExistsException.class);
         mockMvc.perform(post("/issue/create")
                 .contentType(MediaType.APPLICATION_JSON)

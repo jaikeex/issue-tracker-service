@@ -154,7 +154,7 @@ class IssueServiceTest {
     public void saveIssueToDatabase_givenAllOk_shouldCallRepository() throws IOException {
         Issue issue = new Issue(testIssueDto);
         when(repository.findIssueByTitle(issue.getTitle())).thenReturn(null);
-        service.saveIssueToDatabase(testIssueDto);
+        service.saveNewIssue(testIssueDto);
         verify(repository, times(1)).save(issue);
     }
 
@@ -162,7 +162,7 @@ class IssueServiceTest {
     public void saveIssueToDatabase_givenTitleAlreadyExists_shouldThrowException() {
         when(repository.findIssueByTitle(testIssue.getTitle())).thenReturn(new Issue());
         assertThrows(TitleAlreadyExistsException.class,
-                () -> service.saveIssueToDatabase(testIssueDto));
+                () -> service.saveNewIssue(testIssueDto));
     }
 
     @Test

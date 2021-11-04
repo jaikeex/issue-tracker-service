@@ -48,5 +48,4 @@ public class HistoryService {
     public List<HistoryRecord> findRecordsByIssueId(int issueId) {
         return repository.findRecordsByIssueId(issueId);
     }
-
 }

@@ -48,15 +48,11 @@ public class IssueService {
         this.parser = parser;
     }
 
-    public Issue saveIssueToDatabase(IssueDto issueDto) throws IOException {
+    public Issue saveNewIssue(IssueDto issueDto) throws IOException {
         Issue issue = new Issue(issueDto);
         if(canBeCreated(issue)) {
-            parser.convertNewLinesInDescriptionToHtml(issue);
-            repository.save(issue);
-            historyService.record(RecordType.CREATE, issue);
-            if (issueDto.getAttachmentFileDto().getBytes().length != 0) {
-                attachmentService.saveAttachment(issueDto.getAttachmentFileDto());
-            }
+            saveIssueToDatabase(issue);
+            saveAttachedFilesToDatabase(issueDto);
             log.info("Saved new issue report to the database [id={}] [title={}]", issue.getId(), issue.getTitle());
         }
         clearAllCacheEntries();
@@ -111,25 +107,20 @@ public class IssueService {
         return repository.findAllIssuesByProject(project);
     }
 
-    public Issue updateIssueWithNewProperties(Issue updatedIssue) {
-        int id = updatedIssue.getId();
-        changePropertiesInDatabaseById(updatedIssue, id);
-        log.info("Updated the properties of an issue report in the database [id={}]", id);
-        historyService.record(RecordType.UPDATE_PROPERTIES, updatedIssue);
+    public Issue updateIssueWithNewProperties(Issue issue) {
+        Issue updatedIssue = changePropertiesInDatabaseById(issue);
         clearAllCacheEntries();
-        return repository.findIssueById(id);
+        log.info("Updated the properties of an issue report in the database [id={}]",
+                issue.getId());
+        return updatedIssue;
     }
 
     public Issue updateIssueWithNewDescription(DescriptionDto descriptionDto) {
-        parser.convertNewLinesInDescriptionToHtml(descriptionDto);
-        repository.updateIssueWithNewDescription(
-                descriptionDto.getTitle(), descriptionDto.getDescription());
-        Issue updatedIssue = repository.findIssueByTitle(descriptionDto.getTitle());
+        Issue updatedIssue = updateIssueDescriptionInDatabase(descriptionDto);
+        clearAllCacheEntries();
         log.info("Updated the description of an issue report in the database [title={}]",
                 descriptionDto.getTitle());
-        historyService.record(RecordType.UPDATE_DESCRIPTION, updatedIssue);
-        clearAllCacheEntries();
-        return repository.findIssueByTitle(descriptionDto.getTitle());
+        return updatedIssue;
     }
 
     //TODO: These attachment related methods only redirect the call along
@@ -166,13 +157,35 @@ public class IssueService {
         }
     }
 
-    private void changePropertiesInDatabaseById(Issue updatedIssue, int id) {
-        repository.updateIssueWithNewType(id, updatedIssue.getType());
-        repository.updateIssueWithNewSeverity(id, updatedIssue.getSeverity());
-        repository.updateIssueWithNewStatus(id, updatedIssue.getStatus());
-        repository.updateIssueWithNewProject(id, updatedIssue.getProject());
+    private void saveIssueToDatabase(Issue issue) {
+        parser.convertNewLinesInDescriptionToHtml(issue);
+        repository.save(issue);
+        historyService.record(RecordType.CREATE, issue);
     }
 
+    private void saveAttachedFilesToDatabase(IssueDto issueDto) throws IOException {
+        AttachmentFileDto attachmentFileDto = issueDto.getAttachmentFileDto();
+        if (attachmentFileDto.getBytes().length != 0) {
+            attachmentService.saveAttachment(attachmentFileDto);
+        }
+    }
 
+    private Issue changePropertiesInDatabaseById(Issue issue) {
+        int id = issue.getId();
+        repository.updateIssueWithNewType(id, issue.getType());
+        repository.updateIssueWithNewSeverity(id, issue.getSeverity());
+        repository.updateIssueWithNewStatus(id, issue.getStatus());
+        repository.updateIssueWithNewProject(id, issue.getProject());
+        historyService.record(RecordType.UPDATE_PROPERTIES, issue);
+        return repository.findIssueById(id);
+    }
 
+    private Issue updateIssueDescriptionInDatabase(DescriptionDto descriptionDto) {
+        parser.convertNewLinesInDescriptionToHtml(descriptionDto);
+        repository.updateIssueWithNewDescription(
+                descriptionDto.getTitle(), descriptionDto.getDescription());
+        Issue updatedIssue = repository.findIssueByTitle(descriptionDto.getTitle());
+        historyService.record(RecordType.UPDATE_DESCRIPTION, updatedIssue);
+        return updatedIssue;
+    }
 }

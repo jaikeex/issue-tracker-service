@@ -58,24 +58,12 @@ public class SearchService {
     }
 
     private boolean containsQuery(String query, Issue issue) {
-        return checkIssueDescription(query, issue.getDescription()) ||
-                checkIssueAuthor(query, issue.getAuthor()) ||
-                checkIssueTitle(query, issue.getTitle());
+        return checkForQueryOccurrence(query, issue.getDescription()) ||
+                checkForQueryOccurrence(query, issue.getAuthor()) ||
+                checkForQueryOccurrence(query, issue.getTitle());
     }
 
-    private boolean checkIssueTitle(String query, String title) {
-        return StringUtils.containsIgnoreCase(title, query);
+    private boolean checkForQueryOccurrence(String query, String textToSearch) {
+        return StringUtils.containsIgnoreCase(textToSearch, query);
     }
-
-    private boolean checkIssueAuthor(String query, String author) {
-        return StringUtils.containsIgnoreCase(author, query);
-    }
-
-    private boolean checkIssueDescription(String query, String description) {
-        return StringUtils.containsIgnoreCase(description, query);
-    }
-
-
-
-
 }

@@ -9,7 +9,6 @@ import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
 import com.jaikeex.issuetrackerservice.entity.properties.Project;
 import com.jaikeex.issuetrackerservice.entity.properties.Severity;
 import com.jaikeex.issuetrackerservice.entity.properties.Status;
-import com.jaikeex.issuetrackerservice.service.AttachmentService;
 import com.jaikeex.issuetrackerservice.service.FilterService;
 import com.jaikeex.issuetrackerservice.service.IssueService;
 import com.jaikeex.issuetrackerservice.service.SearchService;
@@ -33,17 +32,14 @@ public class IssueController {
     private final IssueService issueService;
     private final SearchService searchService;
     private final FilterService filterService;
-    private final AttachmentService attachmentService;
 
     @Autowired
     public IssueController(IssueService issueService,
                            SearchService searchService,
-                           FilterService filterService,
-                           AttachmentService attachmentService) {
+                           FilterService filterService) {
         this.issueService = issueService;
         this.searchService = searchService;
         this.filterService = filterService;
-        this.attachmentService = attachmentService;
     }
 
     @GetMapping("/id/{id}")
@@ -124,7 +120,7 @@ public class IssueController {
     @PostMapping("/create")
     public ResponseEntity<Object> createNewIssue(@RequestBody IssueDto issueDto)
             throws IOException {
-        Issue issue = issueService.saveIssueToDatabase(issueDto);
+        Issue issue = issueService.saveNewIssue(issueDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(issue);
     }
 
