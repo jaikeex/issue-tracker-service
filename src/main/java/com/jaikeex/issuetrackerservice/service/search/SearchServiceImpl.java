@@ -1,7 +1,8 @@
-package com.jaikeex.issuetrackerservice.service;
+package com.jaikeex.issuetrackerservice.service.search;
 
 import com.jaikeex.issuetrackerservice.entity.Issue;
 import com.jaikeex.issuetrackerservice.repository.IssueRepository;
+import com.jaikeex.issuetrackerservice.service.issue.IssueService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,27 +14,20 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class SearchService {
+public class SearchServiceImpl implements SearchService {
 
-    IssueRepository repository;
+    IssueRepository issueRepository;
     IssueService issueService;
 
     @Autowired
-    public SearchService(IssueRepository repository, IssueService issueService) {
-        this.repository = repository;
+    public SearchServiceImpl(IssueRepository issueRepository, IssueService issueService) {
+        this.issueRepository = issueRepository;
         this.issueService = issueService;
     }
 
-    /**
-     * Searches all database entries and returns the ones containing the
-     * provided query string.
-     * @param query String which the returned issues must contain.
-     * @return List of issue objects that contain the query in either their
-     *          title, author or description properties
-     */
-    @Transactional(readOnly = true)
+    @Override
     public List<Issue> searchIssues (String query) {
-        List<Issue> listOfIssuesToSearch = repository.findAllIssues();
+        List<Issue> listOfIssuesToSearch = issueRepository.findAllIssues();
         log.debug("Initialized default search results list.");
         return handleEmptyQueryAndFetchResults(query, listOfIssuesToSearch);
     }

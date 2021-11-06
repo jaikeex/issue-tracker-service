@@ -1,4 +1,4 @@
-package com.jaikeex.issuetrackerservice.utility.exceptions;
+package com.jaikeex.issuetrackerservice.utility.exception;
 
 public class TitleAlreadyExistsException extends RuntimeException{
     public TitleAlreadyExistsException() {

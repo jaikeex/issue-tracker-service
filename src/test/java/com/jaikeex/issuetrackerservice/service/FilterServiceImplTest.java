@@ -1,13 +1,14 @@
 package com.jaikeex.issuetrackerservice.service;
 
-import com.jaikeex.issuetrackerservice.dto.DescriptionDto;
-import com.jaikeex.issuetrackerservice.dto.FilterDto;
+import com.jaikeex.issuetrackerservice.dto.IssueDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
 import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
 import com.jaikeex.issuetrackerservice.entity.properties.Project;
 import com.jaikeex.issuetrackerservice.entity.properties.Severity;
 import com.jaikeex.issuetrackerservice.entity.properties.Status;
 import com.jaikeex.issuetrackerservice.repository.IssueRepository;
+import com.jaikeex.issuetrackerservice.service.filter.FilterServiceImpl;
+import com.jaikeex.issuetrackerservice.service.issue.IssueServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-class FilterServiceTest {
+class FilterServiceImplTest {
     private static final String GENERAL_TEST_ISSUE_DESCRIPTION = "this is the general test ISSUE";
     private static final String UPDATE_TEST_ISSUE_DESCRIPTION = "this is the update test issue";
     private static final String FILTER_TEST_ISSUE_DESCRIPTION = "this is the filter test issue";
@@ -39,16 +40,15 @@ class FilterServiceTest {
     @Mock
     IssueRepository repository;
     @Mock
-    IssueService issueService;
+    IssueServiceImpl issueService;
 
     @InjectMocks
-    FilterService service;
+    FilterServiceImpl service;
 
     Issue testIssue;
     Issue updateTestIssue;
     Issue filterTestIssue;
-    FilterDto testFilterDto;
-    DescriptionDto descriptionDto;
+    IssueDto testFilterDto;
 
     List<Issue> findAllResults = new LinkedList<>();
 
@@ -58,18 +58,12 @@ class FilterServiceTest {
         initUpdateTestIssue();
         initFilterTestIssue();
         initFilterDto();
-        initDescriptionDto();
 
         findAllResults.add(testIssue);
         findAllResults.add(updateTestIssue);
         findAllResults.add(filterTestIssue);
+    }
 
-    }
-    private void initDescriptionDto() {
-        descriptionDto = new DescriptionDto();
-        descriptionDto.setDescription(NEW_DESCRIPTION);
-        descriptionDto.setTitle(NEW_TITLE);
-    }
 
     private void initTestIssue() {
         testIssue = new Issue();
@@ -108,7 +102,7 @@ class FilterServiceTest {
     }
 
     private void initFilterDto() {
-        testFilterDto = new FilterDto();
+        testFilterDto = new IssueDto();
         testFilterDto.setType(IssueType.BUG);
         testFilterDto.setSeverity(null);
         testFilterDto.setStatus(Status.SUBMITTED);
@@ -119,10 +113,10 @@ class FilterServiceTest {
     public void filterIssues_givenAllOk_shouldCallRepository() {
         when(issueService.findAllIssues()).thenReturn(findAllResults);
         service.filterIssues(testFilterDto);
-        verify(repository, times(1)).findAllIssuesByType(IssueType.BUG);
-        verify(repository, times(0)).findAllIssuesBySeverity(Severity.HIGH);
-        verify(repository, times(1)).findAllIssuesByStatus(Status.SUBMITTED);
-        verify(repository, times(1)).findAllIssuesByProject(Project.MWP);
+        verify(repository, times(1)).findAllByType(IssueType.BUG);
+        verify(repository, times(0)).findAllBySeverity(Severity.HIGH);
+        verify(repository, times(1)).findAllByStatus(Status.SUBMITTED);
+        verify(repository, times(1)).findAllByProject(Project.MWP);
     }
 
     @Test
@@ -140,10 +134,10 @@ class FilterServiceTest {
         List<Issue> findAllSubmitted = new LinkedList<>();
         findAllSubmitted.add(testIssue);
 
-        when(repository.findAllIssues()).thenReturn(findAllResults);
-        when(repository.findAllIssuesByType(IssueType.BUG)).thenReturn(findAllBugs);
-        when(repository.findAllIssuesByStatus(Status.SUBMITTED)).thenReturn(findAllSubmitted);
-        when(repository.findAllIssuesByProject(Project.MWP)).thenReturn(findAllMWP);
+        when(repository.findAll()).thenReturn(findAllResults);
+        when(repository.findAllByType(IssueType.BUG)).thenReturn(findAllBugs);
+        when(repository.findAllByStatus(Status.SUBMITTED)).thenReturn(findAllSubmitted);
+        when(repository.findAllByProject(Project.MWP)).thenReturn(findAllMWP);
         assertEquals(Collections.singletonList(testIssue), service.filterIssues(testFilterDto));
     }
 

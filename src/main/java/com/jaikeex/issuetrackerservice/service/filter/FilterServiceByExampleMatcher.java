@@ -1,0 +1,39 @@
+package com.jaikeex.issuetrackerservice.service.filter;
+
+import com.jaikeex.issuetrackerservice.dto.IssueDto;
+import com.jaikeex.issuetrackerservice.entity.Issue;
+import com.jaikeex.issuetrackerservice.entity.properties.*;
+import com.jaikeex.issuetrackerservice.repository.IssueRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@Primary
+@Slf4j
+public class FilterServiceByExampleMatcher implements FilterService {
+
+    private final IssueRepository repository;
+
+    @Autowired
+    public FilterServiceByExampleMatcher(IssueRepository repository) {
+        this.repository = repository;
+    }
+
+    @Override
+    public List<Issue> filterIssues(IssueDto issueDto) {
+        IssueType type = issueDto.getType();
+        Severity severity = issueDto.getSeverity();
+        Project project = issueDto.getProject();
+        Status status = issueDto.getStatus();
+
+        ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreNullValues();
+        Example<Issue> exampleQuery = Example.of(new Issue(type, severity, status, project), matcher);
+        return repository.findAll(exampleQuery);
+    }
+}

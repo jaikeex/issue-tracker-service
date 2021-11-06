@@ -1,10 +1,11 @@
-package com.jaikeex.issuetrackerservice.service;
+package com.jaikeex.issuetrackerservice.service.history;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.jaikeex.issuetrackerservice.entity.HistoryRecord;
 import com.jaikeex.issuetrackerservice.entity.Issue;
 import com.jaikeex.issuetrackerservice.repository.HistoryRepository;
+import com.jaikeex.issuetrackerservice.service.history.HistoryServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +29,7 @@ class HistoryServiceTest {
     HistoryRepository repository;
 
     @InjectMocks
-    HistoryService service;
+    HistoryServiceImpl service;
 
     HistoryRecord testRecord;
     Issue testIssue;

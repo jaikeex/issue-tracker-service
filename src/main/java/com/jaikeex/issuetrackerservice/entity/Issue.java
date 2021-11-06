@@ -24,7 +24,7 @@ public class Issue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     private String title;
     private String description;
 
@@ -53,6 +53,13 @@ public class Issue {
         this.setType(issueDto.getType());
         this.setSeverity(issueDto.getSeverity());
         this.setProject(issueDto.getProject());
+    }
+
+    public Issue(IssueType type, Severity severity, Status status, Project project) {
+        this.type = type;
+        this.severity = severity;
+        this.status = status;
+        this.project = project;
     }
 
     public String propertiesToString() {
