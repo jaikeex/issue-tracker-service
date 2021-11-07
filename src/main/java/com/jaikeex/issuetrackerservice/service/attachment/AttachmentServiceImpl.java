@@ -64,7 +64,9 @@ public class AttachmentServiceImpl implements AttachmentService {
         if (issue.isPresent()) {
             saveAttachmentToDiskAndDatabase(attachmentFileDto, issue.get());
         }
-        throw new EntityNotFoundException(ISSUE_NOT_FOUND_EXCEPTION_MESSAGE);
+        else {
+            throw new EntityNotFoundException(ISSUE_NOT_FOUND_EXCEPTION_MESSAGE);
+        }
     }
 
     @Override
@@ -74,7 +76,9 @@ public class AttachmentServiceImpl implements AttachmentService {
         if(attachmentToDelete.isPresent()) {
             deleteAttachmentFromDiskAndDatabase(attachmentToDelete.get());
         }
-        throw new EntityNotFoundException(ATTACHMENT_NOT_FOUND_EXCEPTION_MESSAGE);
+        else {
+            throw new EntityNotFoundException(ATTACHMENT_NOT_FOUND_EXCEPTION_MESSAGE);
+        }
     }
 
     @Override

@@ -199,14 +199,14 @@ class IssueServiceTest {
 
     @Test
     public void findAllIssues_givenAllOk_shouldCallRepository() {
-        when(repository.findAll()).thenReturn(new LinkedList<>());
+        when(repository.findAllIssues()).thenReturn(new LinkedList<>());
         service.findAllIssues();
-        verify(repository, times(1)).findAll();
+        verify(repository, times(1)).findAllIssues();
     }
 
     @Test
     public void findAllIssues_givenAllOk_shouldReturnResults() {
-        when(repository.findAll()).thenReturn(Collections.singletonList(testIssue));
+        when(repository.findAllIssues()).thenReturn(Collections.singletonList(testIssue));
         assertTrue(service.findAllIssues().contains(testIssue));
     }
 

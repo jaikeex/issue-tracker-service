@@ -82,7 +82,7 @@ public class IssueServiceImpl implements IssueService {
     @Override
     @Cacheable(value = CACHE_NAME, key = "'all'")
     public List<Issue> findAllIssues() {
-        return repository.findAll();
+        return repository.findAllIssues();
     }
 
     @Override

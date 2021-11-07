@@ -45,68 +45,68 @@ public class IssueController {
     @GetMapping("/id/{id}")
     public ResponseEntity<Object> findIssueById(@PathVariable Integer id) {
         Issue issue = issueService.findIssueById(id);
-        return getFindIssueResponseEntity(issue);
+        return getOkResponseWithIssueBody(issue);
     }
 
     @GetMapping("/title/{title}")
     public ResponseEntity<Object> findIssueByTitle(@PathVariable String title) {
         Issue issue = issueService.findIssueByTitle(title);
-        return getFindIssueResponseEntity(issue);
+        return getOkResponseWithIssueBody(issue);
     }
 
     @GetMapping("/all")
     public ResponseEntity<Object> findAllIssues() {
         List<Issue> issues = issueService.findAllIssues();
-        return getFindIssueResponseEntity(issues);
+        return getOkResponseWithIssueBody(issues);
     }
 
     @GetMapping("/type/{type}")
     public ResponseEntity<Object> findAllByType(@PathVariable IssueType type) {
         List<Issue> issues = issueService.findAllIssuesByType(type);
-        return getFindIssueResponseEntity(issues);
+        return getOkResponseWithIssueBody(issues);
     }
 
     @GetMapping("/severity/{severity}")
     public ResponseEntity<Object> findAllBySeverity(@PathVariable Severity severity) {
         List<Issue> issues = issueService.findAllIssuesBySeverity(severity);
-        return getFindIssueResponseEntity(issues);
+        return getOkResponseWithIssueBody(issues);
     }
 
     @GetMapping("/status/{status}")
     public ResponseEntity<Object> findAllByStatus(@PathVariable Status status) {
         List<Issue> issues = issueService.findAllIssuesByStatus(status);
-        return getFindIssueResponseEntity(issues);
+        return getOkResponseWithIssueBody(issues);
     }
 
     @GetMapping("/project/{project}")
     public ResponseEntity<Object> findAllByProject(@PathVariable Project project) {
         List<Issue> issues = issueService.findAllIssuesByProject(project);
-        return getFindIssueResponseEntity(issues);
+        return getOkResponseWithIssueBody(issues);
     }
 
     @PostMapping("/filter")
     public ResponseEntity<Object> filterIssues(@RequestBody IssueDto issueDto) {
         List<Issue> issues = filterService.filterIssues(issueDto);
-        return getFindIssueResponseEntity(issues);
+        return getOkResponseWithIssueBody(issues);
     }
 
     @PutMapping("/update")
     public ResponseEntity<Object> updateIssueWithNewProperties(@RequestBody IssueDto issueDto) {
         Issue updatedIssue = issueService.updateIssueWithNewProperties(issueDto);
-        return ResponseEntity.ok().body(updatedIssue);
+        return getOkResponseWithIssueBody(updatedIssue);
     }
 
     @PostMapping("/update-description")  // Is a POST endpoint because html forms can't handle PUT method.
     public ResponseEntity<Object> updateIssueWithNewDescription(
             @RequestBody IssueDto issueDto) {
         Issue updatedIssue = issueService.updateIssueWithNewDescription(issueDto);
-        return ResponseEntity.ok().body(updatedIssue);
+        return getOkResponseWithIssueBody(updatedIssue);
     }
 
     @GetMapping("/search")
     public ResponseEntity<Object> searchIssuesGet(@RequestParam(required = false) String query) {
         List<Issue> issues = searchService.searchIssues(query);
-        return getFindIssueResponseEntity(issues);
+        return getOkResponseWithIssueBody(issues);
     }
 
     @PostMapping("/create")
@@ -122,12 +122,12 @@ public class IssueController {
         return ResponseEntity.ok().build();
     }
 
-    private ResponseEntity<Object> getFindIssueResponseEntity(Issue issue) {
+    private ResponseEntity<Object> getOkResponseWithIssueBody(Issue issue) {
         HttpHeaders headers = getJsonHttpHeaders();
         return ResponseEntity.ok().headers(headers).body(issue);
     }
 
-    private ResponseEntity<Object> getFindIssueResponseEntity(List<Issue> issues) {
+    private ResponseEntity<Object> getOkResponseWithIssueBody(List<Issue> issues) {
         HttpHeaders headers = getJsonHttpHeaders();
         return ResponseEntity.ok().headers(headers).body(issues);
     }

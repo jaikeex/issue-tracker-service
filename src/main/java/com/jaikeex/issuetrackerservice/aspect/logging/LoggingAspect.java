@@ -1,8 +1,9 @@
-package com.jaikeex.issuetrackerservice.aspect;
+package com.jaikeex.issuetrackerservice.aspect.logging;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
@@ -10,22 +11,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
+@Component
 @Aspect
 @Slf4j
 public class LoggingAspect {
 
-    @Pointcut("within(@org.springframework.stereotype.Repository *)" +
-            " || within(@org.springframework.stereotype.Service *)" +
-            " || within(@org.springframework.web.bind.annotation.RestController *)")
-    public void springBeanPointcut() {}
-
-    @Pointcut("within(com.jaikeex.issuetrackerservice..*)" +
-            " || within(com.jaikeex.issuetrackerservice.service..*)" +
-            " || within(com.jaikeex.issuetrackerservice.controller..*)")
-    public void applicationPackagePointcut() {}
-
-    @Around("applicationPackagePointcut() && springBeanPointcut()")
+    @Around("com.jaikeex.issuetrackerservice.aspect.pointcut.PointcutConfig.springBeanPointcut()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
+        //Logs all method enter and exit points including the arguments used.
         logWhenEnteringMethodBody(joinPoint);
         try {
             Object result = joinPoint.proceed();
@@ -35,6 +28,15 @@ public class LoggingAspect {
             logIllegalArgumentException(joinPoint);
             throw exception;
         }
+    }
+
+    @AfterThrowing(pointcut = "com.jaikeex.issuetrackerservice.aspect.pointcut.PointcutConfig.springBeanPointcut()", throwing = "exception")
+    public void logAfterThrowing(JoinPoint joinPoint, Throwable exception) {
+        //Logs all exceptions thrown from the pointcut classes.
+        log.warn("Exception thrown from {}.{}(); cause = {}",
+                joinPoint.getSignature().getDeclaringTypeName(),
+                joinPoint.getSignature().getName(),
+                exception.getCause() != null ? exception.getCause() : "NULL");
     }
 
     private void logIllegalArgumentException(JoinPoint joinPoint) {
