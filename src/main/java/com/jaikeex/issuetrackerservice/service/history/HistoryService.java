@@ -4,8 +4,6 @@ import com.jaikeex.issuetrackerservice.entity.Attachment;
 import com.jaikeex.issuetrackerservice.entity.Issue;
 import com.jaikeex.issuetrackerservice.utility.RecordType;
 
-import java.util.Optional;
-
 public interface HistoryService {
 
     /**Creates an entry in database with information about a change to the issue report.

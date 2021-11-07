@@ -2,7 +2,10 @@ package com.jaikeex.issuetrackerservice.service.filter;
 
 import com.jaikeex.issuetrackerservice.dto.IssueDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
-import com.jaikeex.issuetrackerservice.entity.properties.*;
+import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
+import com.jaikeex.issuetrackerservice.entity.properties.Project;
+import com.jaikeex.issuetrackerservice.entity.properties.Severity;
+import com.jaikeex.issuetrackerservice.entity.properties.Status;
 import com.jaikeex.issuetrackerservice.repository.IssueRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

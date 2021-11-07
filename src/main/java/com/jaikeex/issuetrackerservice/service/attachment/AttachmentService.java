@@ -1,7 +1,6 @@
 package com.jaikeex.issuetrackerservice.service.attachment;
 
 import com.jaikeex.issuetrackerservice.dto.AttachmentFileDto;
-import com.jaikeex.issuetrackerservice.entity.Issue;
 
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;

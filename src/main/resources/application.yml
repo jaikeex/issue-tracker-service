@@ -25,7 +25,13 @@ logging:
       file-name-pattern: "/logs/issue-tracker-service/logFile.%d{yyyy-MM-dd}.log"
       max-history: 3
   level:
-    root: info
+    root: debug
+    org:
+      springframework:
+        aop:
+          interceptor:
+            PerformanceMonitorInterceptor:
+              trace
 
 management:
   endpoints:

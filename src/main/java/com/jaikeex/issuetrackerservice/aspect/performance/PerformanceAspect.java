@@ -8,7 +8,6 @@ import org.springframework.aop.interceptor.PerformanceMonitorInterceptor;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
 @Configuration
 @Aspect
@@ -18,8 +17,8 @@ public class PerformanceAspect {
     private static final String PERFORMANCE_MONITOR_POINTCUT = "com.jaikeex.issuetrackerservice.aspect.pointcut.PointcutConfig.performanceMonitorPointcut()";
 
     @Bean
-    public PerformanceMonitor performanceMonitor() {
-        return new PerformanceMonitor(true);
+    public PerformanceMonitorInterceptor performanceMonitor() {
+        return new PerformanceMonitorInterceptor(false);
     }
 
     @Bean
