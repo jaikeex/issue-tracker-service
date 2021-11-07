@@ -1,5 +1,6 @@
 package com.jaikeex.issuetrackerservice.aspect.logging;
 
+import com.jaikeex.issuetrackerservice.service.issue.IssueService;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -17,7 +18,7 @@ import java.util.Arrays;
 @EnableAspectJAutoProxy
 public class LoggingAspect {
 
-    @Around("com.jaikeex.issuetrackerservice.aspect.pointcut.PointcutConfig.springBeanPointcut()")
+    @Around("com.jaikeex.issuetrackerservice.aspect.pointcut.ApplicationPointcuts.springBeanPointcut()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
         //Logs all method enter and exit points including the arguments used.
         logWhenEnteringMethodBody(joinPoint);
@@ -31,7 +32,7 @@ public class LoggingAspect {
         }
     }
 
-    @AfterThrowing(pointcut = "com.jaikeex.issuetrackerservice.aspect.pointcut.PointcutConfig.springBeanPointcut()", throwing = "exception")
+    @AfterThrowing(pointcut = "com.jaikeex.issuetrackerservice.aspect.pointcut.ApplicationPointcuts.springBeanPointcut()", throwing = "exception")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable exception) {
         //Logs all exceptions thrown from the pointcut classes.
         log.warn("Exception thrown from {}.{}(); cause = {}",

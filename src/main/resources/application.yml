@@ -1,5 +1,6 @@
 server:
   port: 9091
+
 spring:
   jpa:
     database: mysql
@@ -25,7 +26,7 @@ logging:
       file-name-pattern: "/logs/issue-tracker-service/logFile.%d{yyyy-MM-dd}.log"
       max-history: 3
   level:
-    root: debug
+    root: info
     org:
       springframework:
         aop:

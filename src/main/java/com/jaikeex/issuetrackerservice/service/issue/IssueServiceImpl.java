@@ -62,7 +62,6 @@ public class IssueServiceImpl implements IssueService {
     @CacheEvict(value = CACHE_NAME, allEntries = true)
     public void deleteIssueById(Integer id) {
         repository.deleteById(id);
-        log.info("Deleted issue from the database [id={}]", id);
     }
 
     @Override
@@ -143,7 +142,6 @@ public class IssueServiceImpl implements IssueService {
         parser.convertNewLinesInDescriptionToHtml(issue);
         repository.save(issue);
         historyService.record(RecordType.CREATE, issue);
-        log.info("Saved new issue report to the database [id={}] [title={}]", issue.getId(), issue.getTitle());
     }
 
     private void saveAttachedFilesToDatabase(IssueDto issueDto) throws IOException {
@@ -161,7 +159,6 @@ public class IssueServiceImpl implements IssueService {
         repository.updateIssueWithNewStatus(id, issueDto.getStatus());
         repository.updateIssueWithNewProject(id, issueDto.getProject());
         historyService.record(RecordType.UPDATE_PROPERTIES, issue);
-        log.info("Updated the properties of an issue report in the database [id={}]", issue.getId());
         return repository.findById(id);
 
     }
@@ -170,7 +167,6 @@ public class IssueServiceImpl implements IssueService {
         parser.convertNewLinesInDescriptionToHtml(issueDto);
         repository.updateIssueWithNewDescription(
                 issueDto.getTitle(), issueDto.getDescription());
-        log.info("Updated the description of an issue report in the database [title={}]", issueDto.getTitle());
         Optional<Issue> updatedIssue = repository.findByTitle(issueDto.getTitle());
         //TODO: the Optional is handled twice: here and in the calling method, this should not be the case.
         historyService.record(RecordType.UPDATE_DESCRIPTION, getIssueFromOptional(updatedIssue));

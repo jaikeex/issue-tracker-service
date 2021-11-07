@@ -14,6 +14,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -37,6 +38,8 @@ public class FilterServiceByExampleMatcher implements FilterService {
 
         ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreNullValues();
         Example<Issue> exampleQuery = Example.of(new Issue(type, severity, status, project), matcher);
-        return repository.findAll(exampleQuery);
+        List<Issue> results =  repository.findAll(exampleQuery);
+        Collections.reverse(results); //in order to display newest at the top.
+        return results;
     }
 }

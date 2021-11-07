@@ -9,6 +9,9 @@ import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Aspect for logging simple performance metrics of the application.
+ */
 @Configuration
 @Aspect
 @Slf4j

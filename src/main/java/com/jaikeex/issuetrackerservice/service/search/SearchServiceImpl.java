@@ -27,7 +27,6 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<Issue> searchIssues (String query) {
         List<Issue> listOfIssuesToSearch = issueRepository.findAllIssues();
-        log.debug("Initialized default search results list.");
         return handleEmptyQueryAndFetchResults(query, listOfIssuesToSearch);
     }
 
@@ -43,11 +42,9 @@ public class SearchServiceImpl implements SearchService {
 
     private List<Issue> getSearchResults(
             String query, List<Issue> listOfIssuesToSearch) {
-        List<Issue> searchResults = listOfIssuesToSearch.stream()
+        return listOfIssuesToSearch.stream()
                                     .filter(issue -> containsQuery(query, issue))
                                     .collect(Collectors.toList());
-        log.debug("Searched database for all reports containing the query string [query={}]", query);
-        return searchResults;
     }
 
     private boolean containsQuery(String query, Issue issue) {
