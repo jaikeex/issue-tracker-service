@@ -16,7 +16,7 @@ import java.util.Arrays;
 @Aspect
 @Slf4j
 @EnableAspectJAutoProxy
-public class LoggingAspect {
+public class ApplicationWideAspect {
 
     @Around("com.jaikeex.issuetrackerservice.aspect.pointcut.ApplicationPointcuts.springBeanPointcut()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {

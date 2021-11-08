@@ -1,24 +1,17 @@
-package com.jaikeex.issuetrackerservice.aspect.logging.issue;
+package com.jaikeex.issuetrackerservice.aspect.logging.service;
 
-import com.jaikeex.issuetrackerservice.dto.IssueDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
 import com.jaikeex.issuetrackerservice.service.issue.IssueService;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.AfterThrowing;
-import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
 
 @Component
 @Aspect
 @Slf4j
-public class IssueServiceLogging {
+public class IssueServiceAspect {
 
     @AfterReturning(value = "com.jaikeex.issuetrackerservice.aspect.pointcut.service.IssueServicePointcuts.deletePointcut(issueService)", argNames = "joinPoint,issueService")
     public void logDeleteIssue(JoinPoint joinPoint, IssueService issueService) {
