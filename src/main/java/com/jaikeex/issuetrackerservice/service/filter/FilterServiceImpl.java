@@ -1,13 +1,12 @@
-package com.jaikeex.issuetrackerservice.service;
+package com.jaikeex.issuetrackerservice.service.filter;
 
-import com.jaikeex.issuetrackerservice.dto.FilterDto;
+import com.jaikeex.issuetrackerservice.dto.IssueDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
 import com.jaikeex.issuetrackerservice.entity.properties.Property;
 import com.jaikeex.issuetrackerservice.repository.IssueRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,61 +14,56 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class FilterService {
+@Deprecated
+public class FilterServiceImpl implements FilterService {
 
-    IssueRepository repository;
-    IssueService issueService;
+    private final IssueRepository repository;
 
     @Autowired
-    public FilterService(IssueRepository repository, IssueService issueService) {
+    public FilterServiceImpl(IssueRepository repository) {
         this.repository = repository;
-        this.issueService = issueService;
     }
 
-    /** Returns those issue reports from database that match a given set of properties.
-     * @param filterDto Dto with values of those properties that should be matched by the filter.
-     * @return List of issues matching the filter.
-     */
-    @Transactional(readOnly = true)
-    public List<Issue> filterIssues(FilterDto filterDto) {
-        List<Issue> listOfIssuesToFilter = repository.findAllIssues();
-        return getFilteredResults(filterDto, listOfIssuesToFilter);
+    @Override
+    public List<Issue> filterIssues(IssueDto issueDto) {
+        List<Issue> listOfIssuesToFilter = repository.findAll();
+        return getFilteredResults(issueDto, listOfIssuesToFilter);
     }
 
     private List<Issue> getFilteredResults(
-            FilterDto filterDto, List<Issue> listOfIssuesToFilter) {
+            IssueDto issueDto, List<Issue> listOfIssuesToFilter) {
         Map<String, List<Issue>> resultsFilteredByProperty =
-                getResultsFilteredByProperty(filterDto, listOfIssuesToFilter);
+                getResultsFilteredByProperty(issueDto, listOfIssuesToFilter);
         return retainOnlyExactMatches(
                 listOfIssuesToFilter, resultsFilteredByProperty);
     }
 
     private Map<String, List<Issue>> getResultsFilteredByProperty(
-            FilterDto filterDto, List<Issue> listOfIssuesToFilter) {
+            IssueDto issueDto, List<Issue> listOfIssuesToFilter) {
         Map<String, List<Issue>> defaultResults =
                 initializeDefaultFilterResults(listOfIssuesToFilter);
         return searchDatabaseForResultsByProperty(
-                filterDto, defaultResults);
+                issueDto, defaultResults);
     }
 
     private Map<String, List<Issue>> searchDatabaseForResultsByProperty(
-            FilterDto filterDto, Map<String,
+            IssueDto issueDto, Map<String,
             List<Issue>> issuesGroupedByProperty) {
-        if (filterDto.getType() != null) {
+        if (issueDto.getType() != null) {
             issuesGroupedByProperty.replace(Property.TYPE.getFilterMapKey(),
-                    repository.findAllIssuesByType(filterDto.getType()));
+                    repository.findAllByType(issueDto.getType()));
         }
-        if (filterDto.getSeverity() != null) {
+        if (issueDto.getSeverity() != null) {
             issuesGroupedByProperty.replace(Property.SEVERITY.getFilterMapKey(),
-                    repository.findAllIssuesBySeverity(filterDto.getSeverity()));
+                    repository.findAllBySeverity(issueDto.getSeverity()));
         }
-        if (filterDto.getStatus() != null) {
+        if (issueDto.getStatus() != null) {
             issuesGroupedByProperty.replace(Property.STATUS.getFilterMapKey(),
-                    repository.findAllIssuesByStatus(filterDto.getStatus()));
+                    repository.findAllByStatus(issueDto.getStatus()));
         }
-        if (filterDto.getProject() != null) {
+        if (issueDto.getProject() != null) {
             issuesGroupedByProperty.replace(Property.PROJECT.getFilterMapKey(),
-                    repository.findAllIssuesByProject(filterDto.getProject()));
+                    repository.findAllByProject(issueDto.getProject()));
         }
         return issuesGroupedByProperty;
     }

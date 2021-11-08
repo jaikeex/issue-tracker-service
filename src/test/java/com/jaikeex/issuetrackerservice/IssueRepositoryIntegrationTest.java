@@ -6,7 +6,7 @@ import com.jaikeex.issuetrackerservice.entity.properties.Project;
 import com.jaikeex.issuetrackerservice.entity.properties.Severity;
 import com.jaikeex.issuetrackerservice.entity.properties.Status;
 import com.jaikeex.issuetrackerservice.repository.IssueRepository;
-import com.jaikeex.issuetrackerservice.service.IssueService;
+import com.jaikeex.issuetrackerservice.service.issue.IssueServiceImpl;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -39,7 +39,7 @@ public class IssueRepositoryIntegrationTest {
     IssueRepository repository;
 
     @Autowired
-    IssueService service;
+    IssueServiceImpl service;
 
     Issue testIssue;
     Issue updateTestIssue;
@@ -60,8 +60,8 @@ public class IssueRepositoryIntegrationTest {
 
     }
 
-    private Issue getCachedBook(String title) {
-        return (Issue) cacheManager.getCache(CACHE_NAME).get(title);
+    private Issue getCachedBook() {
+        return (Issue) cacheManager.getCache(CACHE_NAME).get(GENERAL_TEST_TITLE);
     }
 
     private void initTestIssue() {
@@ -103,6 +103,6 @@ public class IssueRepositoryIntegrationTest {
     @Test
     public void findIssueByTitle_givenCacheableIssue_shouldCacheTheResults() {
         Issue issue = service.findIssueByTitle(GENERAL_TEST_TITLE);
-        assertEquals(issue, getCachedBook(GENERAL_TEST_TITLE));
+        assertEquals(issue, getCachedBook());
     }
 }

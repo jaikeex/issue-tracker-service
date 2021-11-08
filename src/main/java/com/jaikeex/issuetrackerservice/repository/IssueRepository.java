@@ -13,69 +13,63 @@ import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IssueRepository extends JpaRepository<Issue, Integer> {
 
-    @Query("SELECT i FROM Issue i ORDER BY i.id DESC ")
+    Optional<Issue> findByTitle(String title);
+
+    List<Issue> findAllByStatus(Status status);
+
+    List<Issue> findAllByType(IssueType type);
+
+    List<Issue> findAllBySeverity(Severity severity);
+
+    List<Issue> findAllByProject(Project project);
+
+    @Query("SELECT i FROM Issue i ORDER BY i.id DESC")
     List<Issue> findAllIssues();
 
-
-    @Query("select i from Issue i where i.title = :title")
+    @Query("SELECT i FROM Issue i WHERE i.title = :title")
     Issue findIssueByTitle(
             @Param("title") String title);
 
-    @Query("select i from Issue i where i.id = :id")
+    @Query("SELECT i FROM Issue i WHERE i.id = :id")
     Issue findIssueById(
             @Param("id") Integer id);
 
-    @Query("select i from Issue i where i.type = :type")
-    List<Issue> findAllIssuesByType(
-            @Param("type") IssueType type);
-
-    @Query("select i from Issue i where i.severity = :severity")
-    List<Issue> findAllIssuesBySeverity(
-            @Param("severity") Severity severity);
-
-    @Query("select i from Issue i where i.status = :status")
-    List<Issue> findAllIssuesByStatus(
-            @Param("status") Status status);
-
-    @Query("select i from Issue i where i.project = :project")
-    List<Issue> findAllIssuesByProject(
-            @Param("project") Project project);
-
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
-    @Query("update Issue set type = :type where id = :id")
+    @Query("UPDATE Issue SET type = :type WHERE id = :id")
     void updateIssueWithNewType(
             @Param("id") Integer id,
             @Param("type") IssueType type);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
-    @Query("update Issue set severity = :severity where id = :id")
+    @Query("UPDATE Issue SET severity = :severity WHERE id = :id")
     void updateIssueWithNewSeverity(
             @Param("id") Integer id,
             @Param("severity") Severity severity);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
-    @Query("update Issue set status = :status where id = :id")
+    @Query("UPDATE Issue SET status = :status WHERE id = :id")
     void updateIssueWithNewStatus(
             @Param("id") Integer id,
             @Param("status") Status status);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
-    @Query("update Issue set project = :project where id = :id")
+    @Query("UPDATE Issue SET project = :project WHERE id = :id")
     void updateIssueWithNewProject(
             @Param("id") Integer id,
             @Param("project") Project project);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
-    @Query("update Issue set description = :description where title = :title")
+    @Query("UPDATE Issue SET description = :description WHERE title = :title")
     void updateIssueWithNewDescription(
             @Param("title") String title,
             @Param("description") String description);

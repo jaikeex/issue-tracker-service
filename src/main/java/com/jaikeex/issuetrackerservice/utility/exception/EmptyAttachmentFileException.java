@@ -1,4 +1,4 @@
-package com.jaikeex.issuetrackerservice.utility.exceptions;
+package com.jaikeex.issuetrackerservice.utility.exception;
 
 public class EmptyAttachmentFileException extends RuntimeException{
     public EmptyAttachmentFileException() {

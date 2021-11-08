@@ -30,7 +30,7 @@ public class Attachment {
     private String originalFilename;
     private Timestamp date;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "issueid")
     @JsonIgnore
     private Issue issue;

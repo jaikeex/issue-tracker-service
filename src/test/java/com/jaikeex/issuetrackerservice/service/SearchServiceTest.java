@@ -1,14 +1,14 @@
 package com.jaikeex.issuetrackerservice.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.jaikeex.issuetrackerservice.dto.DescriptionDto;
-import com.jaikeex.issuetrackerservice.dto.FilterDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
 import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
 import com.jaikeex.issuetrackerservice.entity.properties.Project;
 import com.jaikeex.issuetrackerservice.entity.properties.Severity;
 import com.jaikeex.issuetrackerservice.entity.properties.Status;
 import com.jaikeex.issuetrackerservice.repository.IssueRepository;
+import com.jaikeex.issuetrackerservice.service.issue.IssueServiceImpl;
+import com.jaikeex.issuetrackerservice.service.search.SearchServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,16 +41,14 @@ class SearchServiceTest {
     @Mock
     IssueRepository repository;
     @Mock
-    IssueService issueService;
+    IssueServiceImpl issueService;
 
     @InjectMocks
-    SearchService service;
+    SearchServiceImpl service;
 
     Issue testIssue;
     Issue updateTestIssue;
     Issue filterTestIssue;
-    FilterDto testFilterDto;
-    DescriptionDto descriptionDto;
 
     List<Issue> findAllResults = new LinkedList<>();
 
@@ -59,8 +57,6 @@ class SearchServiceTest {
         initTestIssue();
         initUpdateTestIssue();
         initFilterTestIssue();
-        initFilterDto();
-        initDescriptionDto();
 
         List<Issue> findAllResultsMock = getFindAllResults();
         when(repository.findAllIssues()).thenReturn(findAllResultsMock);
@@ -69,12 +65,6 @@ class SearchServiceTest {
         findAllResults.add(updateTestIssue);
         findAllResults.add(filterTestIssue);
 
-    }
-
-    private void initDescriptionDto() {
-        descriptionDto = new DescriptionDto();
-        descriptionDto.setDescription(NEW_DESCRIPTION);
-        descriptionDto.setTitle(NEW_TITLE);
     }
 
     private void initTestIssue() {
@@ -112,15 +102,6 @@ class SearchServiceTest {
         filterTestIssue.setStatus(Status.SOLVED);
         filterTestIssue.setProject(Project.MWP);
     }
-
-    private void initFilterDto() {
-        testFilterDto = new FilterDto();
-        testFilterDto.setType(IssueType.BUG);
-        testFilterDto.setSeverity(null);
-        testFilterDto.setStatus(Status.SUBMITTED);
-        testFilterDto.setProject(Project.MWP);
-    }
-
 
     @Test
     public void searchIssues_shouldSearchDescriptionsForOccurrences() {

@@ -4,19 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jaikeex.issuetrackerservice.dto.AttachmentFileDto;
-import com.jaikeex.issuetrackerservice.dto.DescriptionDto;
-import com.jaikeex.issuetrackerservice.dto.FilterDto;
 import com.jaikeex.issuetrackerservice.dto.IssueDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
 import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
 import com.jaikeex.issuetrackerservice.entity.properties.Project;
 import com.jaikeex.issuetrackerservice.entity.properties.Severity;
 import com.jaikeex.issuetrackerservice.entity.properties.Status;
-import com.jaikeex.issuetrackerservice.service.AttachmentService;
-import com.jaikeex.issuetrackerservice.service.FilterService;
-import com.jaikeex.issuetrackerservice.service.IssueService;
-import com.jaikeex.issuetrackerservice.service.SearchService;
-import com.jaikeex.issuetrackerservice.utility.exceptions.TitleAlreadyExistsException;
+import com.jaikeex.issuetrackerservice.service.attachment.AttachmentServiceImpl;
+import com.jaikeex.issuetrackerservice.service.filter.FilterServiceImpl;
+import com.jaikeex.issuetrackerservice.service.issue.IssueServiceImpl;
+import com.jaikeex.issuetrackerservice.service.search.SearchServiceImpl;
+import com.jaikeex.issuetrackerservice.utility.exception.TitleAlreadyExistsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -37,7 +36,7 @@ import static org.mockito.Mockito.*;
 
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(IssueController.class)
+@WebMvcTest({IssueController.class, AttachmentController.class})
 class IssueControllerTest {
 
     private static final String CROSS_ORIGIN_VALUE = "*";
@@ -59,26 +58,26 @@ class IssueControllerTest {
             new MockMultipartFile(TEST_FILE_NAME, TEST_FILE_NAME, MULTIPART_FORM_DATA_TYPE, TEST_FILE_CONTENT);
 
     @MockBean
-    IssueService service;
+    IssueServiceImpl service;
     @MockBean
-    SearchService searchService;
+    SearchServiceImpl searchService;
     @MockBean
-    FilterService filterService;
+    FilterServiceImpl filterServiceImpl;
     @MockBean
-    AttachmentService attachmentService;
+    AttachmentServiceImpl attachmentService;
 
     @Autowired
     private MockMvc mockMvc;
 
-
     Issue testIssue;
     Issue updateTestIssue;
+    IssueDto updateTestIssueDto;
     String testIssueJson;
     String updateTestIssueJson;
 
-    FilterDto testFilterDto;
+    IssueDto testFilterDto;
     String testFilterDtoJson;
-    DescriptionDto descriptionDto;
+    IssueDto descriptionDto;
     String descriptionDtoJson;
     AttachmentFileDto testAttachmentFileDto;
     String attachmentDtoJson;
@@ -93,12 +92,12 @@ class IssueControllerTest {
         initDescriptionDto();
         initAttachmentDto();
         initTestIssueDto();
-
+        initUpdateTestIssueDto();
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         ObjectWriter writer = mapper.writer().withDefaultPrettyPrinter();
         testIssueJson = writer.writeValueAsString(testIssue);
-        updateTestIssueJson = writer.writeValueAsString(updateTestIssue);
+        updateTestIssueJson = writer.writeValueAsString(updateTestIssueDto);
         testFilterDtoJson = writer.writeValueAsString(testFilterDto);
         descriptionDtoJson = writer.writeValueAsString(descriptionDto);
         attachmentDtoJson = writer.writeValueAsString(testAttachmentFileDto);
@@ -131,8 +130,20 @@ class IssueControllerTest {
         updateTestIssue.setProject(Project.TRACKER);
     }
 
+    private void initUpdateTestIssueDto() {
+        updateTestIssueDto = new IssueDto();
+        updateTestIssueDto.setId(1);
+        updateTestIssueDto.setTitle(UPDATE_TEST_TITLE);
+        updateTestIssueDto.setDescription(UPDATE_TEST_ISSUE_DESCRIPTION);
+        updateTestIssueDto.setAuthor(UPDATE_TEST_AUTHOR);
+        updateTestIssueDto.setType(IssueType.ENHANCEMENT);
+        updateTestIssueDto.setSeverity(Severity.HIGH);
+        updateTestIssueDto.setStatus(Status.SOLVED);
+        updateTestIssueDto.setProject(Project.TRACKER);
+    }
+
     private void initFilterDto() {
-        testFilterDto = new FilterDto();
+        testFilterDto = new IssueDto();
         testFilterDto.setType(IssueType.BUG);
         testFilterDto.setSeverity(Severity.CRITICAL);
         testFilterDto.setStatus(Status.SUBMITTED);
@@ -141,16 +152,18 @@ class IssueControllerTest {
 
     private void initTestIssueDto() {
         testIssueDto = new IssueDto();
+        testIssueDto.setId(1);
         testIssueDto.setTitle(GENERAL_TEST_TITLE);
         testIssueDto.setDescription(GENERAL_TEST_ISSUE_DESCRIPTION);
         testIssueDto.setAuthor(GENERAL_TEST_AUTHOR);
         testIssueDto.setType(IssueType.BUG);
+        testIssueDto.setStatus(Status.SUBMITTED);
         testIssueDto.setSeverity(Severity.CRITICAL);
         testIssueDto.setProject(Project.MWP);
     }
 
     private void initDescriptionDto() {
-        descriptionDto = new DescriptionDto();
+        descriptionDto = new IssueDto();
         descriptionDto.setDescription(NEW_DESCRIPTION);
         descriptionDto.setTitle(NEW_TITLE);
     }
@@ -166,7 +179,7 @@ class IssueControllerTest {
         mockMvc.perform(post("/issue/create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testIssueJson));
-        verify(service, times(1)).saveIssueToDatabase(testIssueDto);
+        verify(service, times(1)).saveNewIssue(testIssueDto);
     }
 
     @Test
@@ -179,7 +192,7 @@ class IssueControllerTest {
 
     @Test
     public void createNewIssue_shouldCatchTitleAlreadyExistsExceptionAndReturnConflict() throws Exception {
-        when(service.saveIssueToDatabase(testIssueDto))
+        when(service.saveNewIssue(testIssueDto))
                 .thenThrow(TitleAlreadyExistsException.class);
         mockMvc.perform(post("/issue/create")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -189,7 +202,7 @@ class IssueControllerTest {
 
     @Test
     public void createNewIssue_shouldSendCorsHeaders() throws Exception {
-        assertCorsHeadersAreReturned(mockMvc.perform(post("/issue/create")
+        assertCorsHeadersAreIncluded(mockMvc.perform(post("/issue/create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testIssueJson)));
     }
@@ -209,7 +222,7 @@ class IssueControllerTest {
     @Test
     public void deleteIssueById_shouldSendCorsHeaders() throws Exception {
         ResultActions resultActions = mockMvc.perform(delete("/issue/id/1"));
-        assertCorsHeadersAreReturned(resultActions);
+        assertCorsHeadersAreIncluded(resultActions);
     }
 
     @Test
@@ -227,7 +240,7 @@ class IssueControllerTest {
 
     @Test
     public void findIssueById_givenNotFound_shouldReturnNotFound() throws Exception {
-        when(service.findIssueById(1)).thenReturn(null);
+        when(service.findIssueById(1)).thenThrow(EntityNotFoundException.class);
         mockMvc.perform(get("/issue/id/1"))
                 .andExpect(status().isNotFound());
     }
@@ -235,7 +248,7 @@ class IssueControllerTest {
     @Test
     public void findIssueById_shouldSendCorsHeaders() throws Exception {
         ResultActions resultActions = mockMvc.perform(get("/issue/id/1"));
-        assertCorsHeadersAreReturned(resultActions);
+        assertCorsHeadersAreIncluded(resultActions);
     }
 
     @Test
@@ -253,7 +266,7 @@ class IssueControllerTest {
 
     @Test
     public void findIssueByTitle_givenNotFound_shouldReturnNotFound() throws Exception {
-        when(service.findIssueByTitle("testTitle")).thenReturn(null);
+        when(service.findIssueByTitle("testTitle")).thenThrow(EntityNotFoundException.class);
         mockMvc.perform(get("/issue/title/testTitle"))
                 .andExpect(status().isNotFound());
     }
@@ -261,7 +274,7 @@ class IssueControllerTest {
     @Test
     public void findIssueByTitle_shouldSendCorsHeaders() throws Exception {
         ResultActions resultActions = mockMvc.perform(get("/issue/title/testTitle"));
-        assertCorsHeadersAreReturned(resultActions);
+        assertCorsHeadersAreIncluded(resultActions);
     }
 
     @Test
@@ -280,7 +293,7 @@ class IssueControllerTest {
     @Test
     public void findAllIssues_shouldSendCorsHeaders() throws Exception {
         ResultActions resultActions = mockMvc.perform(get("/issue/all"));
-        assertCorsHeadersAreReturned(resultActions);
+        assertCorsHeadersAreIncluded(resultActions);
     }
 
     @Test
@@ -292,7 +305,7 @@ class IssueControllerTest {
     @Test
     public void findAllByType_shouldSendCorsHeaders() throws Exception {
         ResultActions resultActions = mockMvc.perform(get("/issue/type/BUG"));
-        assertCorsHeadersAreReturned(resultActions);
+        assertCorsHeadersAreIncluded(resultActions);
     }
 
     @Test
@@ -304,7 +317,7 @@ class IssueControllerTest {
     @Test
     public void findAllBySeverity_shouldSendCorsHeaders() throws Exception {
         ResultActions resultActions = mockMvc.perform(get("/issue/severity/CRITICAL"));
-        assertCorsHeadersAreReturned(resultActions);
+        assertCorsHeadersAreIncluded(resultActions);
     }
 
     @Test
@@ -316,7 +329,7 @@ class IssueControllerTest {
     @Test
     public void findAllByStatus_shouldSendCorsHeaders() throws Exception {
         ResultActions resultActions = mockMvc.perform(get("/issue/status/OPEN"));
-        assertCorsHeadersAreReturned(resultActions);
+        assertCorsHeadersAreIncluded(resultActions);
     }
 
     @Test
@@ -328,7 +341,7 @@ class IssueControllerTest {
     @Test
     public void findAllByProject_shouldSendCorsHeaders() throws Exception {
         ResultActions resultActions = mockMvc.perform(get("/issue/project/MWP"));
-        assertCorsHeadersAreReturned(resultActions);
+        assertCorsHeadersAreIncluded(resultActions);
     }
 
     @Test
@@ -336,7 +349,7 @@ class IssueControllerTest {
         mockMvc.perform(put("/issue/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updateTestIssueJson));
-        verify(service, times(1)).updateIssueWithNewProperties(updateTestIssue);
+        verify(service, times(1)).updateIssueWithNewProperties(updateTestIssueDto);
     }
 
     @Test
@@ -368,20 +381,20 @@ class IssueControllerTest {
         ResultActions resultActions = mockMvc.perform(post("/issue/update-description")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(descriptionDtoJson));
-        assertCorsHeadersAreReturned(resultActions);
+        assertCorsHeadersAreIncluded(resultActions);
     }
 
     @Test
     public void uploadNewAttachment_shouldCallIssueService() throws Exception {
-        mockMvc.perform(post("/issue/upload-attachment")
+        mockMvc.perform(post("/issue/attachments/upload")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(attachmentDtoJson));
-        verify(service, times(1)).saveAttachment(testAttachmentFileDto);
+        verify(attachmentService, times(1)).saveAttachment(testAttachmentFileDto);
     }
 
     @Test
     public void uploadNewAttachment_givenAllOk_shouldCallReturnOk() throws Exception {
-        mockMvc.perform(post("/issue/upload-attachment")
+        mockMvc.perform(post("/issue/attachments/upload")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(attachmentDtoJson))
                 .andExpect(status().isOk());
@@ -389,10 +402,10 @@ class IssueControllerTest {
 
     @Test
     public void uploadNewAttachment_shouldSendCorsHeaders() throws Exception {
-        ResultActions resultActions = mockMvc.perform(post("/issue/upload-attachment")
+        ResultActions resultActions = mockMvc.perform(post("/issue/attachments/upload")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(attachmentDtoJson));
-        assertCorsHeadersAreReturned(resultActions);
+        assertCorsHeadersAreIncluded(resultActions);
     }
 
     @Test
@@ -400,7 +413,7 @@ class IssueControllerTest {
         mockMvc.perform(post("/issue/filter")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testFilterDtoJson));
-        verify(filterService, times(1)).filterIssues(testFilterDto);
+        verify(filterServiceImpl, times(1)).filterIssues(testFilterDto);
     }
 
     @Test
@@ -408,7 +421,7 @@ class IssueControllerTest {
         ResultActions resultActions = mockMvc.perform(post("/issue/filter")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testFilterDtoJson));
-        assertCorsHeadersAreReturned(resultActions);
+        assertCorsHeadersAreIncluded(resultActions);
     }
 
     @Test
@@ -432,11 +445,11 @@ class IssueControllerTest {
     @Test
     public void searchIssues_shouldSendCorsHeaders() throws Exception {
         ResultActions resultActions = mockMvc.perform(get("/issue/search?query=testQuery"));
-        assertCorsHeadersAreReturned(resultActions);
+        assertCorsHeadersAreIncluded(resultActions);
 
     }
 
-    private void assertCorsHeadersAreReturned(ResultActions resultActions) throws Exception {
+    private void assertCorsHeadersAreIncluded(ResultActions resultActions) throws Exception {
         resultActions.andExpect(header().string("Access-Control-Allow-Origin", CROSS_ORIGIN_VALUE))
                 .andExpect(header().string("Access-Control-Allow-Methods", CROSS_ORIGIN_ALLOWED_METHODS))
                 .andExpect(header().string("Access-Control-Allow-Headers", CROSS_ORIGIN_ALLOWED_HEADERS))

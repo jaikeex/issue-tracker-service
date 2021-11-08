@@ -1,4 +1,4 @@
-package com.jaikeex.issuetrackerservice.service;
+package com.jaikeex.issuetrackerservice.service.history;
 
 import com.jaikeex.issuetrackerservice.entity.Attachment;
 import com.jaikeex.issuetrackerservice.entity.HistoryRecord;
@@ -13,40 +13,32 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class HistoryService {
+public class HistoryServiceImpl implements HistoryService {
 
     private final HistoryRepository repository;
 
     @Autowired
-    public HistoryService(HistoryRepository repository) {
+    public HistoryServiceImpl(HistoryRepository repository) {
         this.repository = repository;
     }
 
-    /**Creates an entry in database with information about a change to the issue report.
-     * @param type Type of the change.
-     * @param issue Changed issue.
-     */
+    @Override
     public void record(RecordType type, Issue issue) {
         HistoryRecord newRecord = new HistoryRecord(type.getTextForDbRecord(issue), issue);
         saveNewRecord(newRecord);
     }
 
-    /**Creates an entry in database with information about a change to the issue report.
-     * @param type Type of the change.
-     * @param issue Changed issue.
-     * @param attachment Changed (uploaded/deleted) attachment.
-     */
+    @Override
     public void record(RecordType type, Issue issue, Attachment attachment) {
         HistoryRecord newRecord = new HistoryRecord(type.getTextForDbRecord(attachment), issue);
         saveNewRecord(newRecord);
     }
 
-    public void saveNewRecord(HistoryRecord record) {
+    protected void saveNewRecord(HistoryRecord record) {
         repository.save(record);
     }
 
     public List<HistoryRecord> findRecordsByIssueId(int issueId) {
         return repository.findRecordsByIssueId(issueId);
     }
-
 }

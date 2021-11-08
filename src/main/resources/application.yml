@@ -1,5 +1,6 @@
 server:
   port: 9091
+
 spring:
   jpa:
     database: mysql
@@ -13,7 +14,7 @@ spring:
 storage:
   folder:
     issue-attachments-folder: "/issue/attachments/"
-    attachment-download-endpoint: "http://localhost:9091/issue/attachments/"
+    attachment-download-endpoint: "https://www.kubahruby.com/issue/attachments/"
 
 logging:
   logback:
@@ -26,6 +27,12 @@ logging:
       max-history: 3
   level:
     root: info
+    org:
+      springframework:
+        aop:
+          interceptor:
+            PerformanceMonitorInterceptor:
+              trace
 
 management:
   endpoints:
