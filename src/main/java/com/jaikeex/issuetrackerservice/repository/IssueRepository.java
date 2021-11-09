@@ -1,10 +1,10 @@
 package com.jaikeex.issuetrackerservice.repository;
 
 import com.jaikeex.issuetrackerservice.entity.Issue;
-import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
-import com.jaikeex.issuetrackerservice.entity.properties.Project;
-import com.jaikeex.issuetrackerservice.entity.properties.Severity;
-import com.jaikeex.issuetrackerservice.entity.properties.Status;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.IssueType;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Project;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Severity;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

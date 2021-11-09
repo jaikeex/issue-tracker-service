@@ -5,20 +5,16 @@ import com.jaikeex.issuetrackerservice.repository.IssueRepository;
 import com.jaikeex.issuetrackerservice.service.issue.IssueService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
 @Slf4j
 public class SearchServiceImpl implements SearchService {
 
     IssueRepository issueRepository;
     IssueService issueService;
 
-    @Autowired
     public SearchServiceImpl(IssueRepository issueRepository, IssueService issueService) {
         this.issueRepository = issueRepository;
         this.issueService = issueService;

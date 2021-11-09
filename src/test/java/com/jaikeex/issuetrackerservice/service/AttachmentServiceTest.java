@@ -1,6 +1,6 @@
 package com.jaikeex.issuetrackerservice.service;
 
-import com.jaikeex.issuetrackerservice.config.storage.StorageProperties;
+import com.jaikeex.issuetrackerservice.config.properties.StorageProperties;
 import com.jaikeex.issuetrackerservice.repository.AttachmentRepository;
 import com.jaikeex.issuetrackerservice.service.attachment.AttachmentServiceImpl;
 import com.jaikeex.issuetrackerservice.service.history.HistoryServiceImpl;
@@ -35,7 +35,7 @@ class AttachmentServiceTest {
     public void beforeEach() {
         when(properties.getIssueAttachmentsFolder()).thenReturn("testIssueFolder");
         when(properties.getAttachmentDownloadEndpoint()).thenReturn("testIssueEndpoint");
-        attachmentService = new AttachmentServiceImpl(issueRepository, attachmentRepository, historyService);
+        attachmentService = new AttachmentServiceImpl(issueRepository, attachmentRepository, historyService, properties);
     }
 
     @Test

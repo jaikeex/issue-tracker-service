@@ -2,10 +2,10 @@ package com.jaikeex.issuetrackerservice.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jaikeex.issuetrackerservice.entity.Issue;
-import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
-import com.jaikeex.issuetrackerservice.entity.properties.Project;
-import com.jaikeex.issuetrackerservice.entity.properties.Severity;
-import com.jaikeex.issuetrackerservice.entity.properties.Status;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.IssueType;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Project;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Severity;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Status;
 import com.jaikeex.issuetrackerservice.repository.IssueRepository;
 import com.jaikeex.issuetrackerservice.service.issue.IssueServiceImpl;
 import com.jaikeex.issuetrackerservice.service.search.SearchServiceImpl;

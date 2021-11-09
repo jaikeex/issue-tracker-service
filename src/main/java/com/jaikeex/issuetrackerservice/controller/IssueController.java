@@ -2,16 +2,15 @@ package com.jaikeex.issuetrackerservice.controller;
 
 import com.jaikeex.issuetrackerservice.dto.IssueDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
-import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
-import com.jaikeex.issuetrackerservice.entity.properties.Project;
-import com.jaikeex.issuetrackerservice.entity.properties.Severity;
-import com.jaikeex.issuetrackerservice.entity.properties.Status;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.IssueType;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Project;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Severity;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Status;
 import com.jaikeex.issuetrackerservice.service.filter.FilterService;
 import com.jaikeex.issuetrackerservice.service.issue.IssueService;
 import com.jaikeex.issuetrackerservice.service.search.SearchService;
 import com.jaikeex.issuetrackerservice.utility.exception.TitleAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +23,6 @@ import java.util.List;
 /**
  * API for all issue-specific operations.
  */
-@RestController
 @RequestMapping("/issue")
 @Slf4j
 public class IssueController {
@@ -33,7 +31,6 @@ public class IssueController {
     private final SearchService searchService;
     private final FilterService filterService;
 
-    @Autowired
     public IssueController(IssueService issueService,
                            SearchService searchService,
                            FilterService filterService) {
@@ -43,74 +40,74 @@ public class IssueController {
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<Object> findIssueById(@PathVariable Integer id) {
+    public ResponseEntity<Issue> findIssueById(@PathVariable Integer id) {
         Issue issue = issueService.findIssueById(id);
-        return getOkResponseWithIssueBody(issue);
+        return ResponseEntity.ok().headers(getJsonHttpHeaders()).body(issue);
     }
 
     @GetMapping("/title/{title}")
-    public ResponseEntity<Object> findIssueByTitle(@PathVariable String title) {
+    public ResponseEntity<Issue> findIssueByTitle(@PathVariable String title) {
         Issue issue = issueService.findIssueByTitle(title);
-        return getOkResponseWithIssueBody(issue);
+        return ResponseEntity.ok().headers(getJsonHttpHeaders()).body(issue);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Object> findAllIssues() {
+    public ResponseEntity<List<Issue>> findAllIssues() {
         List<Issue> issues = issueService.findAllIssues();
-        return getOkResponseWithIssueBody(issues);
+        return ResponseEntity.ok().headers(getJsonHttpHeaders()).body(issues);
     }
 
     @GetMapping("/type/{type}")
-    public ResponseEntity<Object> findAllByType(@PathVariable IssueType type) {
+    public ResponseEntity<List<Issue>> findAllByType(@PathVariable IssueType type) {
         List<Issue> issues = issueService.findAllIssuesByType(type);
-        return getOkResponseWithIssueBody(issues);
+        return ResponseEntity.ok().headers(getJsonHttpHeaders()).body(issues);
     }
 
     @GetMapping("/severity/{severity}")
-    public ResponseEntity<Object> findAllBySeverity(@PathVariable Severity severity) {
+    public ResponseEntity<List<Issue>> findAllBySeverity(@PathVariable Severity severity) {
         List<Issue> issues = issueService.findAllIssuesBySeverity(severity);
-        return getOkResponseWithIssueBody(issues);
+        return ResponseEntity.ok().headers(getJsonHttpHeaders()).body(issues);
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<Object> findAllByStatus(@PathVariable Status status) {
+    public ResponseEntity<List<Issue>> findAllByStatus(@PathVariable Status status) {
         List<Issue> issues = issueService.findAllIssuesByStatus(status);
-        return getOkResponseWithIssueBody(issues);
+        return ResponseEntity.ok().headers(getJsonHttpHeaders()).body(issues);
     }
 
     @GetMapping("/project/{project}")
-    public ResponseEntity<Object> findAllByProject(@PathVariable Project project) {
+    public ResponseEntity<List<Issue>> findAllByProject(@PathVariable Project project) {
         List<Issue> issues = issueService.findAllIssuesByProject(project);
-        return getOkResponseWithIssueBody(issues);
+        return ResponseEntity.ok().headers(getJsonHttpHeaders()).body(issues);
     }
 
     @PostMapping("/filter")
-    public ResponseEntity<Object> filterIssues(@RequestBody IssueDto issueDto) {
+    public ResponseEntity<List<Issue>> filterIssues(@RequestBody IssueDto issueDto) {
         List<Issue> issues = filterService.filterIssues(issueDto);
-        return getOkResponseWithIssueBody(issues);
+        return ResponseEntity.ok().headers(getJsonHttpHeaders()).body(issues);
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Object> updateIssueWithNewProperties(@RequestBody IssueDto issueDto) {
+    public ResponseEntity<Issue> updateIssueWithNewProperties(@RequestBody IssueDto issueDto) {
         Issue updatedIssue = issueService.updateIssueWithNewProperties(issueDto);
-        return getOkResponseWithIssueBody(updatedIssue);
+        return ResponseEntity.ok().headers(getJsonHttpHeaders()).body(updatedIssue);
     }
 
-    @PostMapping("/update-description")  // Is a POST endpoint because html forms can't handle PUT method.
-    public ResponseEntity<Object> updateIssueWithNewDescription(
+    @PostMapping("/update-description")
+    public ResponseEntity<Issue> updateIssueWithNewDescription(
             @RequestBody IssueDto issueDto) {
         Issue updatedIssue = issueService.updateIssueWithNewDescription(issueDto);
-        return getOkResponseWithIssueBody(updatedIssue);
+        return ResponseEntity.ok().headers(getJsonHttpHeaders()).body(updatedIssue);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> searchIssuesGet(@RequestParam(required = false) String query) {
+    public ResponseEntity<List<Issue>> searchIssuesGet(@RequestParam(required = false) String query) {
         List<Issue> issues = searchService.searchIssues(query);
-        return getOkResponseWithIssueBody(issues);
+        return ResponseEntity.ok().headers(getJsonHttpHeaders()).body(issues);
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Object> createNewIssue(@RequestBody IssueDto issueDto)
+    public ResponseEntity<Issue> createNewIssue(@RequestBody IssueDto issueDto)
             throws IOException {
         Issue issue = issueService.saveNewIssue(issueDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(issue);
@@ -120,16 +117,6 @@ public class IssueController {
     public ResponseEntity<Object> deleteIssueById(@PathVariable Integer id) {
         issueService.deleteIssueById(id);
         return ResponseEntity.ok().build();
-    }
-
-    private ResponseEntity<Object> getOkResponseWithIssueBody(Issue issue) {
-        HttpHeaders headers = getJsonHttpHeaders();
-        return ResponseEntity.ok().headers(headers).body(issue);
-    }
-
-    private ResponseEntity<Object> getOkResponseWithIssueBody(List<Issue> issues) {
-        HttpHeaders headers = getJsonHttpHeaders();
-        return ResponseEntity.ok().headers(headers).body(issues);
     }
 
     private HttpHeaders getJsonHttpHeaders() {
