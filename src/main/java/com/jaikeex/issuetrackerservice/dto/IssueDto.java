@@ -1,9 +1,9 @@
 package com.jaikeex.issuetrackerservice.dto;
 
-import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
-import com.jaikeex.issuetrackerservice.entity.properties.Project;
-import com.jaikeex.issuetrackerservice.entity.properties.Severity;
-import com.jaikeex.issuetrackerservice.entity.properties.Status;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.IssueType;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Project;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Severity;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

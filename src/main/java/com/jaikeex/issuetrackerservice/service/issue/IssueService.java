@@ -2,10 +2,10 @@ package com.jaikeex.issuetrackerservice.service.issue;
 
 import com.jaikeex.issuetrackerservice.dto.IssueDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
-import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
-import com.jaikeex.issuetrackerservice.entity.properties.Project;
-import com.jaikeex.issuetrackerservice.entity.properties.Severity;
-import com.jaikeex.issuetrackerservice.entity.properties.Status;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.IssueType;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Project;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Severity;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Status;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;

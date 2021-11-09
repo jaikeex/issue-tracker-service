@@ -3,10 +3,10 @@ package com.jaikeex.issuetrackerservice.service.issue;
 import com.jaikeex.issuetrackerservice.dto.AttachmentFileDto;
 import com.jaikeex.issuetrackerservice.dto.IssueDto;
 import com.jaikeex.issuetrackerservice.entity.Issue;
-import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
-import com.jaikeex.issuetrackerservice.entity.properties.Project;
-import com.jaikeex.issuetrackerservice.entity.properties.Severity;
-import com.jaikeex.issuetrackerservice.entity.properties.Status;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.IssueType;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Project;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Severity;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Status;
 import com.jaikeex.issuetrackerservice.repository.IssueRepository;
 import com.jaikeex.issuetrackerservice.service.attachment.AttachmentService;
 import com.jaikeex.issuetrackerservice.service.history.HistoryService;
@@ -14,17 +14,14 @@ import com.jaikeex.issuetrackerservice.utility.RecordType;
 import com.jaikeex.issuetrackerservice.utility.exception.TitleAlreadyExistsException;
 import com.jaikeex.issuetrackerservice.utility.html.HtmlParser;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-@Service
 @Slf4j
 public class IssueServiceImpl implements IssueService {
 
@@ -36,7 +33,6 @@ public class IssueServiceImpl implements IssueService {
     private final IssueRepository repository;
     private final HtmlParser parser;
 
-    @Autowired
     public IssueServiceImpl(HistoryService historyService,
                             AttachmentService attachmentService,
                             IssueRepository repository,
@@ -47,6 +43,12 @@ public class IssueServiceImpl implements IssueService {
         this.parser = parser;
     }
 
+    /** Converts an IssueDto to Issue object and saves it into the database.
+     *
+     * @param issueDto Dto with the issue report data.
+     * @return saved Issue.
+     * @throws IOException when there is a problem with saving any attached files.
+     */
     @Override
     @CacheEvict(value = CACHE_NAME, allEntries = true)
     public Issue saveNewIssue(IssueDto issueDto) throws IOException {
@@ -58,12 +60,21 @@ public class IssueServiceImpl implements IssueService {
         return issue;
     }
 
+    /** Deletes the issue report matching an id.
+     *
+     * @param id id of the issue which is to be deleted.
+     */
     @Override
     @CacheEvict(value = CACHE_NAME, allEntries = true)
     public void deleteIssueById(Integer id) {
         repository.deleteById(id);
     }
 
+    /** Returns the issue report matching an id.
+     *
+     * @param id id of the requested issue.
+     * @return Issue with the provided id.
+     */
     @Override
     @Cacheable(value = CACHE_NAME, key = "'id' + #id")
     public Issue findIssueById(int id) {
@@ -71,6 +82,11 @@ public class IssueServiceImpl implements IssueService {
         return getIssueFromOptional(issue);
     }
 
+    /** Returns the issue report with a specific title.
+     *
+     * @param title title of the requested issue.
+     * @return Issue with the provided title.
+     */
     @Override
     @Cacheable(value = CACHE_NAME, key = "'title' + #title")
     public Issue findIssueByTitle(String title) {
@@ -78,36 +94,67 @@ public class IssueServiceImpl implements IssueService {
         return getIssueFromOptional(issue);
     }
 
+    /** Returns List of all issues currently present in the database.
+     *
+     * @return List with all issues found.
+     */
     @Override
     @Cacheable(value = CACHE_NAME, key = "'all'")
     public List<Issue> findAllIssues() {
         return repository.findAllIssues();
     }
 
+    /** Returns all issue reports with a specific type.
+     *
+     * @param type Requested issue type.
+     * @return List of all issues with the provided type.
+     */
     @Override
     @Cacheable(value = CACHE_NAME, key = "'type' + #type")
     public List<Issue> findAllIssuesByType(IssueType type) {
         return repository.findAllByType(type);
     }
 
+    /** Returns all issue reports with a specific severity.
+     *
+     * @param severity Requested issue severity.
+     * @return List of all issues with the provided severity.
+     */
     @Override
     @Cacheable(value = CACHE_NAME, key = "'severity' + #severity")
     public List<Issue> findAllIssuesBySeverity(Severity severity) {
         return repository.findAllBySeverity(severity);
     }
 
+    /** Returns all issue reports with a specific status.
+     *
+     * @param status Requested issue status.
+     * @return List of all issues with the provided status.
+     */
     @Override
     @Cacheable(value = CACHE_NAME, key = "'status' + #status")
     public List<Issue> findAllIssuesByStatus(Status status) {
         return repository.findAllByStatus(status);
     }
 
+    /** Returns all issue reports with a specific project.
+     *
+     * @param project Requested issue project.
+     * @return List of all issues with the provided project.
+     */
     @Override
     @Cacheable(value = CACHE_NAME, key = "'project' + #project")
     public List<Issue> findAllIssuesByProject(Project project) {
         return repository.findAllByProject(project);
     }
 
+    /** Updates an issue in database with new properties. The specific report
+     * which is to be updated is specified by an id contained in the IssueDto
+     * provided.
+     *
+     * @param issueDto Dto with all the necessary data.
+     * @return updated issue.
+     */
     @Override
     @CacheEvict(value = CACHE_NAME, allEntries = true)
     public Issue updateIssueWithNewProperties(IssueDto issueDto) {
@@ -115,6 +162,13 @@ public class IssueServiceImpl implements IssueService {
         return getIssueFromOptional(updatedIssue);
     }
 
+    /** Updates an issue in database with new properties. The specific report
+     * which is to be updated is specified by an id contained in the IssueDto
+     * provided.
+     *
+     * @param issueDto Dto with all the necessary data.
+     * @return updated issue.
+     */
     @Override
     @CacheEvict(value = CACHE_NAME, allEntries = true)
     public Issue updateIssueWithNewDescription(IssueDto issueDto) {
@@ -122,6 +176,11 @@ public class IssueServiceImpl implements IssueService {
         return getIssueFromOptional(updatedIssue);
     }
 
+
+    /** Checks whether an issue report already exists in the database.
+     * @return true if issue can be created, false otherwise.
+     * @throws TitleAlreadyExistsException when the issue already exists.
+     */
     private boolean canBeCreated(Issue issue) {
         Issue dbResponse = repository.findIssueByTitle(issue.getTitle());
         if (dbResponse != null) {
@@ -131,6 +190,10 @@ public class IssueServiceImpl implements IssueService {
         }
     }
 
+    /** Returns the issue inside the Optional container.
+     * @return the retrieved issue
+     * @throws EntityNotFoundException if there is nothing in the Optional.
+     */
     private Issue getIssueFromOptional(Optional<Issue> issue) {
         if (issue.isPresent()) {
             return issue.get();

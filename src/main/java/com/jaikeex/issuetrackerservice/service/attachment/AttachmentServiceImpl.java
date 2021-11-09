@@ -1,9 +1,9 @@
 package com.jaikeex.issuetrackerservice.service.attachment;
 
-import com.jaikeex.issuetrackerservice.config.storage.StorageProperties;
 import com.jaikeex.issuetrackerservice.dto.AttachmentFileDto;
 import com.jaikeex.issuetrackerservice.entity.Attachment;
 import com.jaikeex.issuetrackerservice.entity.Issue;
+import com.jaikeex.issuetrackerservice.config.properties.StorageProperties;
 import com.jaikeex.issuetrackerservice.repository.AttachmentRepository;
 import com.jaikeex.issuetrackerservice.repository.IssueRepository;
 import com.jaikeex.issuetrackerservice.service.history.HistoryService;
@@ -11,9 +11,7 @@ import com.jaikeex.issuetrackerservice.utility.RecordType;
 import com.jaikeex.issuetrackerservice.utility.exception.EmptyAttachmentFileException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
@@ -26,7 +24,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-@Service
 @Slf4j
 public class AttachmentServiceImpl implements AttachmentService {
 
@@ -37,26 +34,17 @@ public class AttachmentServiceImpl implements AttachmentService {
     private final IssueRepository issueRepository;
     private final AttachmentRepository attachmentRepository;
     private final HistoryService historyService;
+    private final Path issueAttachmentsFolder;
+    private final String attachmentDownloadEndpoint;
 
-    private Path issueAttachmentsFolder;
-    private String attachmentDownloadEndpoint;
-
-    @Autowired
     public AttachmentServiceImpl(IssueRepository issueRepository,
                                  AttachmentRepository attachmentRepository,
-                                 HistoryService historyService) {
+                                 HistoryService historyService,
+                                 StorageProperties storageProperties) {
         this.issueRepository = issueRepository;
         this.attachmentRepository = attachmentRepository;
         this.historyService = historyService;
-    }
-
-    @Autowired
-    public void setIssueAttachmentsFolder(StorageProperties storageProperties) {
         this.issueAttachmentsFolder = Paths.get(storageProperties.getIssueAttachmentsFolder());
-    }
-
-    @Autowired
-    public void setAttachmentDownloadEndpoint(StorageProperties storageProperties) {
         this.attachmentDownloadEndpoint = storageProperties.getAttachmentDownloadEndpoint();
     }
 

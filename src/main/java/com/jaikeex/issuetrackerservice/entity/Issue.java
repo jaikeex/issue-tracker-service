@@ -1,10 +1,10 @@
 package com.jaikeex.issuetrackerservice.entity;
 
 import com.jaikeex.issuetrackerservice.dto.IssueDto;
-import com.jaikeex.issuetrackerservice.entity.properties.IssueType;
-import com.jaikeex.issuetrackerservice.entity.properties.Project;
-import com.jaikeex.issuetrackerservice.entity.properties.Severity;
-import com.jaikeex.issuetrackerservice.entity.properties.Status;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.IssueType;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Project;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Severity;
+import com.jaikeex.issuetrackerservice.entity.issueProperties.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -71,7 +71,7 @@ public class Issue {
         if (this == o) return true;
         if (!(o instanceof Issue)) return false;
         Issue issue = (Issue) o;
-        return getId() == issue.getId() && getTitle().equals(issue.getTitle()) && getAuthor().equals(issue.getAuthor());
+        return Objects.equals(getId(), issue.getId()) && getTitle().equals(issue.getTitle()) && getAuthor().equals(issue.getAuthor());
     }
 
     @Override

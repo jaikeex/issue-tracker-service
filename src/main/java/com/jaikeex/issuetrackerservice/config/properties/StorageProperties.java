@@ -1,4 +1,4 @@
-package com.jaikeex.issuetrackerservice.config.storage;
+package com.jaikeex.issuetrackerservice.config.properties;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

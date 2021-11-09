@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class PerformanceAspect {
 
-    private static final String PERFORMANCE_MONITOR_POINTCUT = "com.jaikeex.issuetrackerservice.aspect.pointcut.PointcutConfig.performanceMonitorPointcut()";
+    private static final String PERFORMANCE_MONITOR_POINTCUT = "com.jaikeex.issuetrackerservice.aspect.pointcut.ApplicationPointcuts.performanceMonitorPointcut()";
 
     @Bean
     public PerformanceMonitorInterceptor performanceMonitor() {

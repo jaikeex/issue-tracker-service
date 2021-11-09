@@ -1,5 +1,6 @@
 package com.jaikeex.issuetrackerservice.config.cache;
 
+import com.jaikeex.issuetrackerservice.config.properties.CacheProperties;
 import net.sf.ehcache.config.CacheConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
@@ -13,10 +14,10 @@ import org.springframework.context.annotation.Configuration;
 @EnableCaching
 public class CacheConfig extends CachingConfigurerSupport {
 
-    private final CacheConfigProperties properties;
+    private final CacheProperties properties;
 
     @Autowired
-    public CacheConfig(CacheConfigProperties properties) {
+    public CacheConfig(CacheProperties properties) {
         this.properties = properties;
     }
 

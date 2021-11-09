@@ -1,7 +1,6 @@
 package com.jaikeex.issuetrackerservice.service.search;
 
 import com.jaikeex.issuetrackerservice.entity.Issue;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,6 +13,5 @@ public interface SearchService {
      * @return List of issue objects that contain the query in either their
      *          title, author or description properties
      */
-    @Transactional(readOnly = true)
     List<Issue> searchIssues (String query);
 }

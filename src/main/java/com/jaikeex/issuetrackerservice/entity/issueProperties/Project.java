@@ -1,4 +1,4 @@
-package com.jaikeex.issuetrackerservice.entity.properties;
+package com.jaikeex.issuetrackerservice.entity.issueProperties;
 
 /**
  * Maps the report to a specific project.

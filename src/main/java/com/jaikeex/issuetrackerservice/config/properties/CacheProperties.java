@@ -1,4 +1,4 @@
-package com.jaikeex.issuetrackerservice.config.cache;
+package com.jaikeex.issuetrackerservice.config.properties;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @NoArgsConstructor
 @AllArgsConstructor
 @ConfigurationProperties(prefix = "cache.config")
-public class CacheConfigProperties {
+public class CacheProperties {
 
     private String ehCacheName;
     private String evictionPolicy;
